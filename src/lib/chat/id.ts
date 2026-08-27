@@ -1,12 +1,5 @@
 /** `crypto.randomUUID` throws (or is missing) on insecure HTTP like http://llm:8080. */
 export function newId(): string {
-  try {
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-      return crypto.randomUUID();
-    }
-  } catch {
-    /* fall through */
-  }
   const bytes = new Uint8Array(16);
   if (typeof crypto !== "undefined" && crypto.getRandomValues) {
     crypto.getRandomValues(bytes);
@@ -18,3 +11,25 @@ export function newId(): string {
   const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
+
+function installIdPolyfill() {
+  if (typeof crypto === "undefined") return;
+  try {
+    if (typeof crypto.randomUUID === "function") {
+      crypto.randomUUID();
+      return;
+    }
+  } catch {
+    /* insecure origin — method exists but throws */
+  }
+  try {
+    Object.defineProperty(crypto, "randomUUID", {
+      value: newId,
+      configurable: true,
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+installIdPolyfill();
