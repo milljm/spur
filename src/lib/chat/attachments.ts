@@ -1,3 +1,4 @@
+import { newId } from "./id.ts";
 import type { Attachment } from "./types";
 
 const TEXT_TYPES = new Set([
@@ -69,7 +70,7 @@ export async function fileToAttachment(file: File): Promise<Attachment> {
   if (isImageFile(typed)) {
     const dataUrl = await imageDataUrl(typed);
     return {
-      id: crypto.randomUUID(),
+      id: newId(),
       name: typed.name,
       mime: typed.type || guessImageMime(typed.name),
       kind: "image",
@@ -79,7 +80,7 @@ export async function fileToAttachment(file: File): Promise<Attachment> {
   }
   const text = await typed.text();
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     name: typed.name,
     mime: typed.type || "text/plain",
     kind: "text",
@@ -89,19 +90,35 @@ export async function fileToAttachment(file: File): Promise<Attachment> {
 }
 
 function readAsDataUrl(file: File): Promise<string> {
+  const mime = file.type || guessImageMime(file.name);
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(reader.error ?? new Error("Could not read file"));
+    reader.onerror = () => {
+      void file
+        .arrayBuffer()
+        .then((buf) => resolve(stampMime(bytesToDataUrl(buf, mime), mime)))
+        .catch(() => reject(reader.error ?? new Error("Could not read file")));
+    };
     reader.onload = () => {
       const result = reader.result;
       if (typeof result !== "string" || !result.includes(",")) {
         reject(new Error("Could not read file"));
         return;
       }
-      resolve(stampMime(result, file.type || guessImageMime(file.name)));
+      resolve(stampMime(result, mime));
     };
     reader.readAsDataURL(file);
   });
+}
+
+function bytesToDataUrl(buf: ArrayBuffer, mime: string): string {
+  const bytes = new Uint8Array(buf);
+  const chunk = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return `data:${mime || "application/octet-stream"};base64,${btoa(binary)}`;
 }
 
 function stampMime(dataUrl: string, mime: string): string {
