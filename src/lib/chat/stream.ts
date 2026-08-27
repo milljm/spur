@@ -57,11 +57,17 @@ export async function streamSse(
     buf = lines.pop() ?? "";
     for (const line of lines) {
       const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith(":")) continue;
       if (!trimmed.startsWith("data:")) continue;
       const payload = trimmed.slice(5).trim();
       if (!payload || payload === "[DONE]") continue;
       try {
-        onEvent(JSON.parse(payload) as ChatEvent);
+        const event = JSON.parse(payload) as ChatEvent;
+        try {
+          onEvent(event);
+        } catch {
+          /* a render throw must not abort the LLM stream */
+        }
       } catch {
         /* skip malformed chunk */
       }
