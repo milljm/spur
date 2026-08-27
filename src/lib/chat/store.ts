@@ -48,7 +48,11 @@ type ChatActions = {
   rewindTo: (n: number) => { ok: true } | { ok: false; error: string };
   popLastAssistant: () => boolean;
   setPendingOoc: (text: string) => void;
-  addFiles: (files: File[]) => Promise<{ added: number; skipped: number }>;
+  addFiles: (files: File[]) => Promise<{
+    added: number;
+    skipped: number;
+    unreadable: number;
+  }>;
   removePending: (id: string) => void;
   clearPending: () => void;
   appendMessage: (
@@ -194,6 +198,7 @@ export const useChatStore = create<ChatStore>()(
       addFiles: async (files) => {
         let added = 0;
         let skipped = 0;
+        let unreadable = 0;
         const next: Attachment[] = [];
         for (const file of files) {
           if (!isAllowedFile(file)) {
@@ -204,7 +209,7 @@ export const useChatStore = create<ChatStore>()(
             next.push(await fileToAttachment(file));
             added += 1;
           } catch {
-            skipped += 1;
+            unreadable += 1;
           }
         }
         if (next.length) {
@@ -212,7 +217,7 @@ export const useChatStore = create<ChatStore>()(
             pendingAttachments: [...s.pendingAttachments, ...next],
           }));
         }
-        return { added, skipped };
+        return { added, skipped, unreadable };
       },
 
       removePending: (id) =>
