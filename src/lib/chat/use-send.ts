@@ -150,7 +150,7 @@ export function useSend() {
       let promptTokens = 0;
       let completionTokens = 0;
       let model = "grok-4.5";
-      const think = { inThink: false };
+      const think = { inThink: false, neverThink: false };
 
       const ac = new AbortController();
       abortRef.current = ac;
@@ -504,7 +504,7 @@ async function generateViaChatPy(
   let promptTokens = 0;
   let completionTokens = 0;
   let model = "";
-  const think = { inThink: false };
+  const think = { inThink: false, neverThink: false };
 
   const ac = new AbortController();
   abortRef.current = ac;

@@ -12,6 +12,7 @@ test("splits think tags out of the visible answer", () => {
   assert.equal(b.reasoning, " plan");
   assert.equal(b.content, "\n```js\n1\n```");
   assert.equal(state.inThink, false);
+  assert.equal(state.neverThink, true);
 });
 
 test("plain tokens pass through", () => {
@@ -19,6 +20,7 @@ test("plain tokens pass through", () => {
   const a = feedThink("no tags here", state);
   assert.equal(a.content, "no tags here");
   assert.equal(a.reasoning, "");
+  assert.equal(state.neverThink, true);
 });
 
 test("mm:think ignores nested <think> mentions (MiniMax)", () => {
@@ -30,10 +32,28 @@ test("mm:think ignores nested <think> mentions (MiniMax)", () => {
   ].join("");
   const out = feedThink(raw, state);
   assert.equal(state.inThink, false);
+  assert.equal(state.neverThink, true);
   assert.match(out.reasoning, /If a `<think>` tag gets split/);
   assert.match(out.reasoning, /<\/think>` style tags/);
   assert.equal(
     out.content,
     "Took a read-through — solid little FastAPI shim.",
   );
+});
+
+test("after thinking closes, later <think> mentions stay in the answer", () => {
+  const state = { inThink: false };
+  const first = feedThink(
+    "<think>Let me give my honest take.</think>\n\nOh, spur-server.py — clean move.\n",
+    state,
+  );
+  assert.equal(state.neverThink, true);
+  assert.match(first.reasoning, /honest take/);
+  assert.match(first.content, /Oh, spur-server/);
+  const later = feedThink(
+    "4. split_think() to handle `<think>` / `</thinking>` blocks is neat.",
+    state,
+  );
+  assert.equal(later.reasoning, "");
+  assert.match(later.content, /`<think>` \/ `<\/thinking>`/);
 });
