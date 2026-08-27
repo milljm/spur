@@ -50,10 +50,15 @@ export function Composer({
 
   async function ingest(fileList: File[]) {
     if (!fileList.length) return;
-    const { added, skipped } = await addFiles(fileList);
+    const { added, skipped, unreadable } = await addFiles(fileList);
     if (skipped) {
       toast.message(
         `Skipped ${skipped} unsupported file${skipped === 1 ? "" : "s"}.`,
+      );
+    }
+    if (unreadable) {
+      toast.error(
+        `Couldn't read ${unreadable} file${unreadable === 1 ? "" : "s"}.`,
       );
     }
     if (added) {
@@ -150,7 +155,7 @@ export function Composer({
                   type="file"
                   multiple
                   className="sr-only"
-                  accept=".png,.jpg,.jpeg,.txt,.md,.py,.json,.csv,.html"
+                  accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.md,.py,.json,.csv,.html,.js,.ts,.css"
                   onChange={(e) => {
                     const files = [...(e.target.files ?? [])];
                     e.target.value = "";
