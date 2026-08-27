@@ -73,3 +73,32 @@ test("blank first tokens latch neverThink on the first non-blank (gpt-oss)", () 
   assert.equal(c.reasoning, "");
   assert.match(c.content, /`<think>` \/ `<\/thinking>`/);
 });
+
+test("literal <think> chunk inside mm:think stays reasoning (MiniMax-M3)", () => {
+  const state = { inThink: false };
+  feedThink("<mm:think>The file parses ", state);
+  assert.equal(state.inThink, true);
+  assert.equal(state.ns, "mm:");
+  const inner = feedThink("<think>", state);
+  assert.equal(inner.content, "");
+  assert.equal(inner.reasoning, "<think>");
+  assert.equal(state.inThink, true);
+  assert.equal(state.ns, "mm:");
+  assert.equal(state.neverThink, undefined);
+  const more = feedThink(" tags.</mm:think>Solid.", state);
+  assert.equal(more.content, "Solid.");
+  assert.equal(state.inThink, false);
+  assert.equal(state.neverThink, true);
+});
+
+test("shadow then <mm:think> still opens namespaced reasoning", () => {
+  const state = { inThink: false };
+  feedThink("", state);
+  assert.equal(state.shadowThink, true);
+  const out = feedThink("<mm:think>real reasoning", state);
+  assert.equal(state.shadowThink, false);
+  assert.equal(state.inThink, true);
+  assert.equal(state.ns, "mm:");
+  assert.equal(out.content, "");
+  assert.equal(out.reasoning, "real reasoning");
+});
