@@ -11,21 +11,29 @@ const TEXT_TYPES = new Set([
   "text/x-python",
 ]);
 
-const TEXT_EXT = /\.(txt|md|py|json|csv|html|js|ts|tsx|css|yml|yaml|toml)$/i;
+const TEXT_EXT =
+  /\.(txt|md|py|json|csv|html|htm|js|ts|tsx|jsx|css|yml|yaml|toml|xml|sh|rs|go|rb|sql|log)$/i;
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|svg)$/i;
+
+export function isImageFile(file: File): boolean {
+  const mime = (file.type || "").toLowerCase();
+  if (mime.startsWith("image/")) return true;
+  return IMAGE_EXT.test(file.name);
+}
 
 export function isAllowedFile(file: File): boolean {
-  if (file.type.startsWith("image/")) return true;
+  if (isImageFile(file)) return true;
   if (TEXT_TYPES.has(file.type)) return true;
   return TEXT_EXT.test(file.name);
 }
 
 export async function fileToAttachment(file: File): Promise<Attachment> {
-  if (file.type.startsWith("image/")) {
+  if (isImageFile(file)) {
     const dataUrl = await resizeImage(file, 1280);
     return {
       id: crypto.randomUUID(),
       name: file.name,
-      mime: file.type || "image/png",
+      mime: file.type || guessImageMime(file.name),
       kind: "image",
       dataUrl,
       size: file.size,
@@ -40,6 +48,16 @@ export async function fileToAttachment(file: File): Promise<Attachment> {
     text,
     size: file.size,
   };
+}
+
+function guessImageMime(name: string): string {
+  const ext = name.split(".").pop()?.toLowerCase();
+  if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+  if (ext === "svg") return "image/svg+xml";
+  if (ext === "png" || ext === "gif" || ext === "webp" || ext === "bmp") {
+    return `image/${ext}`;
+  }
+  return "image/png";
 }
 
 function loadImage(url: string): Promise<HTMLImageElement> {
