@@ -2,6 +2,8 @@
 
 A branched RAG chat UI. The engine is [`dynamic-rag-chat`](https://github.com/milljm/dynamic-rag-chat); this repo is only the view.
 
+![Spur](docs/screenshot.png)
+
 `spur-server.py` in that repo is the HTTP contract. Read it to learn the hooks (`/api/session`, `/api/branches*`, `/api/history*`, `/api/chat` SSE). Spur talks to it over `VITE_CHAT_API`.
 
 ## Run
