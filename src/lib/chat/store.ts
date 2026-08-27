@@ -52,6 +52,7 @@ type ChatActions = {
     added: number;
     skipped: number;
     unreadable: number;
+    reason: string;
   }>;
   removePending: (id: string) => void;
   clearPending: () => void;
@@ -199,6 +200,7 @@ export const useChatStore = create<ChatStore>()(
         let added = 0;
         let skipped = 0;
         let unreadable = 0;
+        let reason = "";
         const next: Attachment[] = [];
         for (const file of files) {
           if (!isAllowedFile(file)) {
@@ -208,8 +210,9 @@ export const useChatStore = create<ChatStore>()(
           try {
             next.push(await fileToAttachment(file));
             added += 1;
-          } catch {
+          } catch (err) {
             unreadable += 1;
+            reason = err instanceof Error ? err.message : "unknown error";
           }
         }
         if (next.length) {
@@ -217,7 +220,7 @@ export const useChatStore = create<ChatStore>()(
             pendingAttachments: [...s.pendingAttachments, ...next],
           }));
         }
-        return { added, skipped, unreadable };
+        return { added, skipped, unreadable, reason };
       },
 
       removePending: (id) =>
