@@ -57,3 +57,19 @@ test("after thinking closes, later <think> mentions stay in the answer", () => {
   assert.equal(later.reasoning, "");
   assert.match(later.content, /`<think>` \/ `<\/thinking>`/);
 });
+
+test("blank first tokens latch neverThink on the first non-blank (gpt-oss)", () => {
+  const state = { inThink: false };
+  const a = feedThink("", state);
+  assert.equal(a.content, "");
+  assert.equal(state.shadowThink, true);
+  feedThink("", state);
+  assert.equal(state.shadowThink, true);
+  const c = feedThink(
+    "Oh, spur-server.py — handle `<think>` / `</thinking>` blocks.",
+    state,
+  );
+  assert.equal(state.neverThink, true);
+  assert.equal(c.reasoning, "");
+  assert.match(c.content, /`<think>` \/ `<\/thinking>`/);
+});

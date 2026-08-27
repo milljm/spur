@@ -504,7 +504,6 @@ async function generateViaChatPy(
   let promptTokens = 0;
   let completionTokens = 0;
   let model = "";
-  const think = { inThink: false, neverThink: false };
 
   const ac = new AbortController();
   abortRef.current = ac;
@@ -542,9 +541,8 @@ async function generateViaChatPy(
             ttft = (performance.now() - started) / 1000;
             first = false;
           }
-          const split = feedThink(event.content, think);
-          content += split.content;
-          reasoning += split.reasoning;
+          // spur-server already classified token vs reasoning.
+          content += event.content;
           patch({
             content,
             reasoning: reasoning || undefined,

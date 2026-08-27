@@ -1,7 +1,12 @@
 const START_RE = /<\s*(mm:)?(think|thinking|reasoning)\s*>/i;
 const END_RE = /<\/\s*(mm:)?(think|thinking|reasoning)\s*>/i;
 
-export type ThinkState = { inThink: boolean; ns?: string; neverThink?: boolean };
+export type ThinkState = {
+  inThink: boolean;
+  ns?: string;
+  neverThink?: boolean;
+  shadowThink?: boolean;
+};
 
 function tagNs(match: RegExpExecArray): string {
   return (match[1] || "").toLowerCase();
@@ -12,6 +17,19 @@ export function feedThink(
   state: ThinkState,
 ): { content: string; reasoning: string } {
   if (state.neverThink) {
+    return { content: chunk, reasoning: "" };
+  }
+  // gpt-oss / LangChain: first token(s) are blank while reasoning streams elsewhere.
+  if (!state.inThink && !state.shadowThink && !chunk) {
+    state.shadowThink = true;
+    return { content: "", reasoning: "" };
+  }
+  if (state.shadowThink) {
+    if (!chunk) return { content: "", reasoning: "" };
+    state.shadowThink = false;
+    state.inThink = false;
+    state.ns = "";
+    state.neverThink = true;
     return { content: chunk, reasoning: "" };
   }
   let content = "";
