@@ -262,6 +262,7 @@ export const Route = createFileRoute("/api/chat")({
                     sendLine(controller, {
                       type: "status",
                       message: "Streaming…",
+                      model: llm.model,
                     });
                   }
                   if (delta?.reasoning_content) {

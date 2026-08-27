@@ -176,7 +176,11 @@ export function useSend() {
           },
           (event) => {
             if (event.type === "status") {
-              patch({ status: event.message });
+              if (event.model) model = event.model;
+              patch({
+                status: event.message,
+                streamingModel: event.model || model || undefined,
+              });
             } else if (event.type === "token") {
               if (first) {
                 ttft = (performance.now() - started) / 1000;
@@ -189,6 +193,7 @@ export function useSend() {
                 content,
                 reasoning: reasoning || undefined,
                 status: content ? undefined : "Streaming…",
+                streamingModel: content ? undefined : model || undefined,
               });
             } else if (event.type === "reasoning") {
               if (first) {
@@ -199,6 +204,7 @@ export function useSend() {
               patch({
                 reasoning,
                 status: content ? undefined : "Streaming…",
+                streamingModel: content ? undefined : model || undefined,
               });
             } else if (event.type === "usage") {
               promptTokens = event.promptTokens;
@@ -542,8 +548,13 @@ async function generateViaChatPy(
         })),
       },
       (event) => {
-        if (event.type === "status") patch({ status: event.message });
-        else if (event.type === "token") {
+        if (event.type === "status") {
+          if (event.model) model = event.model;
+          patch({
+            status: event.message,
+            streamingModel: event.model || model || undefined,
+          });
+        } else if (event.type === "token") {
           if (first) {
             ttft = (performance.now() - started) / 1000;
             first = false;
@@ -554,6 +565,7 @@ async function generateViaChatPy(
             content,
             reasoning: reasoning || undefined,
             status: content ? undefined : "Streaming…",
+            streamingModel: content ? undefined : model || undefined,
           });
         } else if (event.type === "reasoning") {
           if (first) {
@@ -564,6 +576,7 @@ async function generateViaChatPy(
           patch({
             reasoning,
             status: content ? undefined : "Streaming…",
+            streamingModel: content ? undefined : model || undefined,
           });
         } else if (event.type === "usage") {
           promptTokens = event.promptTokens;

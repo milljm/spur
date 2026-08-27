@@ -249,9 +249,10 @@ function MessageBubble({
         {message.content ? (
           <Markdown text={message.content} />
         ) : pending ? (
-          <p className="shimmer-text text-sm text-muted-foreground">
-            {message.status || "Processing Prompt…"}
-          </p>
+          <StatusLine
+            status={message.status}
+            model={message.streamingModel}
+          />
         ) : null}
         {message.metrics && !pending && (
           <p className="mt-3 font-mono text-xs tabular-nums text-muted-foreground">
@@ -263,6 +264,28 @@ function MessageBubble({
         )}
       </div>
     </article>
+  );
+}
+
+
+function StatusLine({
+  status,
+  model,
+}: {
+  status?: string;
+  model?: string;
+}) {
+  const label = status || "Processing Prompt…";
+  const showModel = Boolean(model) && /^Streaming/i.test(label);
+  return (
+    <p className="text-sm text-muted-foreground">
+      <span className="shimmer-text">{label}</span>
+      {showModel ? (
+        <span className="ml-1.5 font-mono text-[10px] font-normal tracking-tight text-muted-foreground/40">
+          [{model}]
+        </span>
+      ) : null}
+    </p>
   );
 }
 
