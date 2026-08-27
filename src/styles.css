@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --color-background: #0a0b0a;
+  --color-foreground: #eceee9;
+  --color-card: #121412;
+  --color-card-foreground: #eceee9;
+  --color-popover: #161916;
+  --color-popover-foreground: #eceee9;
+  --color-primary: #c5c9c0;
+  --color-primary-foreground: #0a0b0a;
+  --color-secondary: #1a1c1a;
+  --color-secondary-foreground: #eceee9;
+  --color-muted: #1a1c1a;
+  --color-muted-foreground: #8b9186;
+  --color-accent: #1f221f;
+  --color-accent-foreground: #eceee9;
+  --color-destructive: #c45c4a;
+  --color-destructive-foreground: #eceee9;
+  --color-border: color-mix(in oklab, #eceee9 12%, transparent);
+  --color-input: color-mix(in oklab, #eceee9 14%, transparent);
+  --color-ring: #c5c9c0;
+  --color-user-bubble: #1c1f1c;
+  --color-assistant-bubble: #151815;
+
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+
+  --shadow-border: 0 0 0 1px color-mix(in oklab, #eceee9 8%, transparent);
+  --shadow-border-hover: 0 0 0 1px color-mix(in oklab, #eceee9 13%, transparent);
+
+  --motion-micro: 80ms;
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+  --motion-slow: 400ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+.hx-kw {
+  color: #7dce82;
+}
+.hx-st {
+  color: #e8a0bf;
+}
+.hx-cm {
+  color: #8b9186;
+  font-style: italic;
+}
+.hx-nu {
+  color: #8ab4f8;
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .shimmer-text {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-muted-foreground) 0%,
+      var(--color-foreground) 50%,
+      var(--color-muted-foreground) 100%
+    );
+    background-size: 200% 100%;
+    background-clip: text;
+    color: transparent;
+    animation: spur-shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes spur-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
