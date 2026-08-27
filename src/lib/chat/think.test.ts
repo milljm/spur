@@ -20,3 +20,20 @@ test("plain tokens pass through", () => {
   assert.equal(a.content, "no tags here");
   assert.equal(a.reasoning, "");
 });
+
+test("mm:think ignores nested <think> mentions (MiniMax)", () => {
+  const state = { inThink: false };
+  const raw = [
+    "<mm:think>If a `<think>` tag gets split mid-token, this could misclassify.",
+    " handles `<think>...</think>` style tags.",
+    "</mm:think>Took a read-through — solid little FastAPI shim.",
+  ].join("");
+  const out = feedThink(raw, state);
+  assert.equal(state.inThink, false);
+  assert.match(out.reasoning, /If a `<think>` tag gets split/);
+  assert.match(out.reasoning, /<\/think>` style tags/);
+  assert.equal(
+    out.content,
+    "Took a read-through — solid little FastAPI shim.",
+  );
+});

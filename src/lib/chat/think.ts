@@ -1,7 +1,11 @@
-const START_RE = /<\s*(?:mm:)?(?:think|thinking|reasoning)\s*>/i;
-const END_RE = /<\/\s*(?:mm:)?(?:think|thinking|reasoning)\s*>/i;
+const START_RE = /<\s*(mm:)?(think|thinking|reasoning)\s*>/i;
+const END_RE = /<\/\s*(mm:)?(think|thinking|reasoning)\s*>/i;
 
-export type ThinkState = { inThink: boolean };
+export type ThinkState = { inThink: boolean; ns?: string };
+
+function tagNs(match: RegExpExecArray): string {
+  return (match[1] || "").toLowerCase();
+}
 
 export function feedThink(
   chunk: string,
@@ -18,9 +22,15 @@ export function feedThink(
         reasoning += rest;
         break;
       }
+      if (tagNs(m) !== (state.ns || "")) {
+        reasoning += rest.slice(0, m.index + m[0].length);
+        rest = rest.slice(m.index + m[0].length);
+        continue;
+      }
       reasoning += rest.slice(0, m.index);
       rest = rest.slice(m.index + m[0].length);
       state.inThink = false;
+      state.ns = "";
       continue;
     }
     const m = START_RE.exec(rest);
@@ -32,6 +42,7 @@ export function feedThink(
     content += rest.slice(0, m.index);
     rest = rest.slice(m.index + m[0].length);
     state.inThink = true;
+    state.ns = tagNs(m);
   }
   return { content, reasoning };
 }
