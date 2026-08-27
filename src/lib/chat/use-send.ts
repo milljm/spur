@@ -120,7 +120,7 @@ export function useSend() {
         id: assistantId,
         role: "assistant",
         content: "",
-        status: agent ? "Agent tool web search…" : undefined,
+        status: agent ? "Agent tool web search…" : "Processing Prompt…",
         createdAt: Date.now(),
       };
       store.appendMessage(assistantMsg, [], originId);
@@ -188,11 +188,18 @@ export function useSend() {
               patch({
                 content,
                 reasoning: reasoning || undefined,
-                status: undefined,
+                status: content ? undefined : "Streaming…",
               });
             } else if (event.type === "reasoning") {
+              if (first) {
+                ttft = (performance.now() - started) / 1000;
+                first = false;
+              }
               reasoning += event.content;
-              patch({ reasoning });
+              patch({
+                reasoning,
+                status: content ? undefined : "Streaming…",
+              });
             } else if (event.type === "usage") {
               promptTokens = event.promptTokens;
               completionTokens = event.completionTokens;
@@ -481,7 +488,7 @@ async function generateViaChatPy(
       id: assistantId,
       role: "assistant",
       content: "",
-      status: "Working — RAG / agent / prompt…",
+      status: "Processing Prompt…",
       createdAt: Date.now(),
     },
     [],
@@ -546,11 +553,18 @@ async function generateViaChatPy(
           patch({
             content,
             reasoning: reasoning || undefined,
-            status: undefined,
+            status: content ? undefined : "Streaming…",
           });
         } else if (event.type === "reasoning") {
+          if (first) {
+            ttft = (performance.now() - started) / 1000;
+            first = false;
+          }
           reasoning += event.content;
-          patch({ reasoning });
+          patch({
+            reasoning,
+            status: content ? undefined : "Streaming…",
+          });
         } else if (event.type === "usage") {
           promptTokens = event.promptTokens;
           completionTokens = event.completionTokens;

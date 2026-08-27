@@ -183,7 +183,7 @@ export const Route = createFileRoute("/api/chat")({
 
               sendLine(controller, {
                 type: "status",
-                message: "Streaming",
+                message: "Processing Prompt…",
               });
 
               const completionsUrl = `${llm.baseUrl}/chat/completions`;
@@ -233,6 +233,7 @@ export const Route = createFileRoute("/api/chat")({
 
               const decoder = new TextDecoder();
               let carry = "";
+              let announced = false;
               const reader = upstream.body.getReader();
               while (true) {
                 const { done, value } = await reader.read();
@@ -256,6 +257,13 @@ export const Route = createFileRoute("/api/chat")({
                     continue;
                   }
                   const delta = chunk.choices?.[0]?.delta;
+                  if (delta && !announced) {
+                    announced = true;
+                    sendLine(controller, {
+                      type: "status",
+                      message: "Streaming…",
+                    });
+                  }
                   if (delta?.reasoning_content) {
                     sendLine(controller, {
                       type: "reasoning",

@@ -250,7 +250,7 @@ function MessageBubble({
           <Markdown text={message.content} />
         ) : pending ? (
           <p className="shimmer-text text-sm text-muted-foreground">
-            {message.status || "Thinking"}
+            {message.status || "Processing Prompt…"}
           </p>
         ) : null}
         {message.metrics && !pending && (
