@@ -27,6 +27,70 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./mode-toggle";
 
+const SECTION_KEY = "spur-sec-";
+
+function readSectionOpen(id: string, fallback: boolean): boolean {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const v = window.localStorage.getItem(SECTION_KEY + id);
+    if (v === "1") return true;
+    if (v === "0") return false;
+  } catch {
+    /* ignore */
+  }
+  return fallback;
+}
+
+function writeSectionOpen(id: string, open: boolean) {
+  try {
+    window.localStorage.setItem(SECTION_KEY + id, open ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
+}
+
+function SidebarSection({
+  id,
+  title,
+  defaultOpen,
+  badge,
+  children,
+  className,
+  bodyClassName,
+}: {
+  id: string;
+  title: string;
+  defaultOpen: boolean;
+  badge?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  bodyClassName?: string;
+}) {
+  const [open, setOpen] = useState(() => readSectionOpen(id, defaultOpen));
+  return (
+    <details
+      open={open}
+      className={cn("border-b border-border last:border-b-0", className)}
+      onToggle={(e) => {
+        const next = (e.currentTarget as HTMLDetailsElement).open;
+        if (next === open) return;
+        setOpen(next);
+        writeSectionOpen(id, next);
+      }}
+    >
+      <summary className="cursor-pointer px-4 py-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        {title}
+        {badge != null ? (
+          <span className="ml-2 font-mono text-xs font-normal normal-case tabular-nums tracking-normal">
+            {badge}
+          </span>
+        ) : null}
+      </summary>
+      <div className={cn("px-4 pb-3", bodyClassName)}>{children}</div>
+    </details>
+  );
+}
+
 export function Sidebar({
   className,
   onNavigate,
@@ -46,6 +110,7 @@ export function Sidebar({
   const removePending = useChatStore((s) => s.removePending);
   const addFiles = useChatStore((s) => s.addFiles);
   const current = branches[currentId];
+  const files = artifactsFromMessages(current?.messages ?? []);
 
   const list = Object.values(branches).sort((a, b) => {
     if (a.id === currentId) return -1;
@@ -88,58 +153,53 @@ export function Sidebar({
 
       <Separator />
 
-      <div className="space-y-3 px-4 py-4">
-        <SectionLabel>Mode</SectionLabel>
-        {current && (
-          <ModeToggle
-            branchId={current.id}
-            mode={current.mode}
-            onChange={(mode) => {
-              const ok = setMode(mode);
-              if (!ok) toast.message("Mode is locked on this branch.");
-            }}
-          />
-        )}
-      </div>
+      <ScrollArea className="min-h-0 flex-1">
+        <SidebarSection id="mode" title="Mode" defaultOpen>
+          {current && (
+            <ModeToggle
+              branchId={current.id}
+              mode={current.mode}
+              onChange={(mode) => {
+                const ok = setMode(mode);
+                if (!ok) toast.message("Mode is locked on this branch.");
+              }}
+            />
+          )}
+        </SidebarSection>
 
-      <Separator />
-
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex min-h-[10rem] flex-1 flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <SectionLabel>Branches</SectionLabel>
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
-              {list.length}
-            </span>
-          </div>
-          <ScrollArea className="min-h-0 flex-1 px-2">
-            <ul className="space-y-1 pb-3">
-              {list.map((branch) => (
-                <BranchRow
-                  key={branch.id}
-                  branch={branch}
-                  active={branch.id === currentId}
-                  onSwitch={() => {
-                    const ok = switchBranch(branch.id);
-                    if (!ok) {
-                      toast.error(`Could not switch to ${branch.name}.`);
-                      return;
-                    }
-                    onNavigate?.();
-                  }}
-                  onDelete={() => {
-                    const result = deleteBranch(branch.id);
-                    if (!result.ok) {
-                      toast.error(result.error);
-                      return;
-                    }
-                    toast.success(`Deleted '${branch.name}'.`);
-                  }}
-                />
-              ))}
-            </ul>
-          </ScrollArea>
-          <div className="shrink-0 px-4">
+        <SidebarSection
+          id="branches"
+          title="Branches"
+          defaultOpen
+          badge={list.length}
+          bodyClassName="px-2"
+        >
+          <ul className="space-y-1">
+            {list.map((branch) => (
+              <BranchRow
+                key={branch.id}
+                branch={branch}
+                active={branch.id === currentId}
+                onSwitch={() => {
+                  const ok = switchBranch(branch.id);
+                  if (!ok) {
+                    toast.error(`Could not switch to ${branch.name}.`);
+                    return;
+                  }
+                  onNavigate?.();
+                }}
+                onDelete={() => {
+                  const result = deleteBranch(branch.id);
+                  if (!result.ok) {
+                    toast.error(result.error);
+                    return;
+                  }
+                  toast.success(`Deleted '${branch.name}'.`);
+                }}
+              />
+            ))}
+          </ul>
+          <div className="px-2">
             <CreateBranchForm
               onCreate={(raw) => {
                 const result = createBranch(raw);
@@ -153,91 +213,80 @@ export function Sidebar({
               }}
             />
           </div>
-        </div>
+        </SidebarSection>
 
-        <Separator className="shrink-0" />
+        <HistoryTools />
+        <SlashHelp />
 
-        <div className="flex max-h-[48%] min-h-0 shrink-0 flex-col overflow-hidden">
-          <div className="flex items-center px-4 pt-4 pb-2">
-            <SectionLabel>Controls</SectionLabel>
-          </div>
-          <ScrollArea className="min-h-0 flex-1 px-2">
-            <div className="px-2 pb-3">
-              <HistoryTools />
-              <SlashHelp />
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
+        <SidebarSection
+          id="files"
+          title="Files"
+          defaultOpen
+          badge={files.length || undefined}
+        >
+          <GeneratedFiles files={files} />
+        </SidebarSection>
 
-      <Separator />
-
-      <div className="space-y-2 px-4 py-4">
-        <GeneratedFiles
-          files={artifactsFromMessages(current?.messages ?? [])}
-        />
-        <SectionLabel>Attachments</SectionLabel>
-        <label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-sm bg-secondary text-xs font-medium text-muted-foreground shadow-[var(--shadow-border)] transition-[box-shadow,background-color] duration-150 hover:bg-accent hover:shadow-[var(--shadow-border-hover)]">
-          <Paperclip className="size-3.5" />
-          Attach to next message
-          <input
-            type="file"
-            multiple
-            className="sr-only"
-            accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.md,.py,.json,.csv,.html,.js,.ts,.css"
-            onChange={async (e) => {
-              const files = [...(e.target.files ?? [])];
-              e.target.value = "";
-              if (!files.length) return;
-              const { added, skipped, unreadable } = await addFiles(files);
-              if (skipped) {
-                toast.message(
-                  `Skipped ${skipped} unsupported file${skipped === 1 ? "" : "s"}.`,
-                );
-              }
-              if (unreadable) {
-                toast.error(
-                  `Couldn't read ${unreadable} file${unreadable === 1 ? "" : "s"}.`,
-                );
-              }
-              if (added) {
-                toast.success(
-                  `Attached ${added} file${added === 1 ? "" : "s"}.`,
-                );
-              }
-            }}
-          />
-        </label>
-        {pending.length > 0 && (
-          <ul className="space-y-1">
-            {pending.map((att) => (
-              <li
-                key={att.id}
-                className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
-              >
-                <span className="min-w-0 flex-1 truncate">{att.name}</span>
-                <button
-                  type="button"
-                  className="relative size-8 after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2"
-                  aria-label={`Remove ${att.name}`}
-                  onClick={() => removePending(att.id)}
+        <SidebarSection
+          id="attachments"
+          title="Attachments"
+          defaultOpen
+          badge={pending.length || undefined}
+        >
+          <label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-sm bg-secondary text-xs font-medium text-muted-foreground shadow-[var(--shadow-border)] transition-[box-shadow,background-color] duration-150 hover:bg-accent hover:shadow-[var(--shadow-border-hover)]">
+            <Paperclip className="size-3.5" />
+            Attach to next message
+            <input
+              type="file"
+              multiple
+              className="sr-only"
+              accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.md,.py,.json,.csv,.html,.js,.ts,.css"
+              onChange={async (e) => {
+                const files = [...(e.target.files ?? [])];
+                e.target.value = "";
+                if (!files.length) return;
+                const { added, skipped, unreadable } = await addFiles(files);
+                if (skipped) {
+                  toast.message(
+                    `Skipped ${skipped} unsupported file${skipped === 1 ? "" : "s"}.`,
+                  );
+                }
+                if (unreadable) {
+                  toast.error(
+                    `Couldn't read ${unreadable} file${unreadable === 1 ? "" : "s"}.`,
+                  );
+                }
+                if (added) {
+                  toast.success(
+                    `Attached ${added} file${added === 1 ? "" : "s"}.`,
+                  );
+                }
+              }}
+            />
+          </label>
+          {pending.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {pending.map((att) => (
+                <li
+                  key={att.id}
+                  className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
                 >
-                  <X className="size-3.5 text-muted-foreground" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  <span className="min-w-0 flex-1 truncate">{att.name}</span>
+                  <button
+                    type="button"
+                    className="relative size-8 after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2"
+                    aria-label={`Remove ${att.name}`}
+                    onClick={() => removePending(att.id)}
+                  >
+                    <X className="size-3.5 text-muted-foreground" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SidebarSection>
+      </ScrollArea>
     </aside>
-  );
-}
-
-function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-      {children}
-    </h2>
   );
 }
 
@@ -373,11 +422,8 @@ function HistoryTools() {
   const rewindTo = useChatStore((s) => s.rewindTo);
 
   return (
-    <details className="py-3">
-      <summary className="cursor-pointer text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        History tools
-      </summary>
-      <div className="mt-3 space-y-2">
+    <SidebarSection id="history" title="History tools" defaultOpen={false}>
+      <div className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
           <Button
             type="button"
@@ -437,17 +483,14 @@ function HistoryTools() {
           </Button>
         </div>
       </div>
-    </details>
+    </SidebarSection>
   );
 }
 
 function SlashHelp() {
   return (
-    <details className="border-t border-border py-3">
-      <summary className="cursor-pointer text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        Slash commands
-      </summary>
-      <ul className="mt-3 space-y-1.5">
+    <SidebarSection id="slash" title="Slash commands" defaultOpen={false}>
+      <ul className="space-y-1.5">
         {SLASH_HELP.map((row) => (
           <li key={row.cmd} className="space-y-0.5 text-xs">
             <code className="font-mono text-foreground/80">{row.cmd}</code>
@@ -455,7 +498,7 @@ function SlashHelp() {
           </li>
         ))}
       </ul>
-    </details>
+    </SidebarSection>
   );
 }
 
@@ -464,35 +507,31 @@ function GeneratedFiles({
 }: {
   files: { file: string; text: string }[];
 }) {
+  if (files.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground">
+        Named fences from the model show up here.
+      </p>
+    );
+  }
   return (
-    <div className="space-y-2">
-      <SectionLabel>Files</SectionLabel>
-      {files.length === 0 ? (
-        <p className="text-xs text-muted-foreground">
-          Named fences from the model show up here.
-        </p>
-      ) : (
-        <ul className="space-y-1">
-          {files.map((art) => (
-            <li
-              key={art.file}
-              className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
-            >
-              <span className="min-w-0 flex-1 truncate font-mono">
-                {art.file}
-              </span>
-              <button
-                type="button"
-                className="relative size-8 text-muted-foreground after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2 hover:text-foreground"
-                aria-label={`Download ${art.file}`}
-                onClick={() => downloadTextFile(art.file, art.text)}
-              >
-                <Download className="size-3.5" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <ul className="space-y-1">
+      {files.map((art) => (
+        <li
+          key={art.file}
+          className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
+        >
+          <span className="min-w-0 flex-1 truncate font-mono">{art.file}</span>
+          <button
+            type="button"
+            className="relative size-8 text-muted-foreground after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2 hover:text-foreground"
+            aria-label={`Download ${art.file}`}
+            onClick={() => downloadTextFile(art.file, art.text)}
+          >
+            <Download className="size-3.5" />
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
