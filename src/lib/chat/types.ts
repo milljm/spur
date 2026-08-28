@@ -36,7 +36,7 @@ export type Message = {
   metrics?: StreamMetrics;
   flags?: TurnFlags;
   status?: string;
-  /** Quiet model label next to "Streaming…" once orchestration has picked one. */
+  /** Quiet model label next to Processing Prompt / Streaming once picked. */
   streamingModel?: string;
   createdAt: number;
 };

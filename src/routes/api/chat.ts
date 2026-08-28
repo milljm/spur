@@ -184,6 +184,7 @@ export const Route = createFileRoute("/api/chat")({
               sendLine(controller, {
                 type: "status",
                 message: "Processing Prompt…",
+                model: llm.model,
               });
 
               const completionsUrl = `${llm.baseUrl}/chat/completions`;
