@@ -542,9 +542,10 @@ async function generateViaChatPy(
           name: a.name,
           mime: a.mime,
           kind: a.kind,
-          dataUrl: a.dataUrl,
-          text: a.text,
           size: a.size,
+          text: a.kind === "text" ? a.text : undefined,
+          // dataUrl stays in `images` for vision; pickling it truncates history.
+          dataUrl: a.kind === "image" ? a.dataUrl : undefined,
         })),
       },
       (event) => {
