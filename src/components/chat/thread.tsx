@@ -276,7 +276,8 @@ function StatusLine({
   model?: string;
 }) {
   const label = status || "Processing Prompt…";
-  const showModel = Boolean(model) && /^Streaming/i.test(label);
+  const showModel =
+    Boolean(model) && /^(Streaming|Processing Prompt)/i.test(label);
   return (
     <p className="text-sm text-muted-foreground">
       <span className="shimmer-text">{label}</span>
