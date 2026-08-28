@@ -3,6 +3,7 @@ import { Check, Copy, Download } from "lucide-react";
 import { downloadTextFile, parseFenceInfo } from "@/lib/chat/artifacts";
 import { highlightCode, normalizeLang } from "@/lib/chat/highlight";
 import { parseTableAt, type MdTable, type TableAlign } from "@/lib/chat/md-table";
+import { cn } from "@/lib/utils";
 
 function inline(text: string): ReactNode[] {
   const parts: ReactNode[] = [];
