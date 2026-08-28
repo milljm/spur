@@ -150,6 +150,7 @@ export function useSend() {
       let promptTokens = 0;
       let completionTokens = 0;
       let model = "grok-4.5";
+      let route = "";
       const think = { inThink: false, neverThink: false };
 
       const ac = new AbortController();
@@ -177,9 +178,11 @@ export function useSend() {
           (event) => {
             if (event.type === "status") {
               if (event.model) model = event.model;
+              if (event.route) route = event.route;
               patch({
                 status: event.message,
                 streamingModel: event.model || model || undefined,
+                streamingRoute: event.route || route || undefined,
               });
             } else if (event.type === "token") {
               if (first) {
@@ -194,6 +197,7 @@ export function useSend() {
                 reasoning: reasoning || undefined,
                 status: content ? undefined : "Streaming…",
                 streamingModel: content ? undefined : model || undefined,
+                streamingRoute: content ? undefined : route || undefined,
               });
             } else if (event.type === "reasoning") {
               if (first) {
@@ -205,6 +209,7 @@ export function useSend() {
                 reasoning,
                 status: content ? undefined : "Streaming…",
                 streamingModel: content ? undefined : model || undefined,
+                streamingRoute: content ? undefined : route || undefined,
               });
             } else if (event.type === "usage") {
               promptTokens = event.promptTokens;
@@ -517,6 +522,7 @@ async function generateViaChatPy(
   let promptTokens = 0;
   let completionTokens = 0;
   let model = "";
+  let route = "";
 
   const ac = new AbortController();
   abortRef.current = ac;
@@ -551,9 +557,11 @@ async function generateViaChatPy(
       (event) => {
         if (event.type === "status") {
           if (event.model) model = event.model;
+          if (event.route) route = event.route;
           patch({
             status: event.message,
             streamingModel: event.model || model || undefined,
+            streamingRoute: event.route || route || undefined,
           });
         } else if (event.type === "token") {
           if (first) {
@@ -567,6 +575,7 @@ async function generateViaChatPy(
             reasoning: reasoning || undefined,
             status: content ? undefined : "Streaming…",
             streamingModel: content ? undefined : model || undefined,
+            streamingRoute: content ? undefined : route || undefined,
           });
         } else if (event.type === "reasoning") {
           if (first) {
@@ -578,6 +587,7 @@ async function generateViaChatPy(
             reasoning,
             status: content ? undefined : "Streaming…",
             streamingModel: content ? undefined : model || undefined,
+            streamingRoute: content ? undefined : route || undefined,
           });
         } else if (event.type === "usage") {
           promptTokens = event.promptTokens;

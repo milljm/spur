@@ -38,6 +38,8 @@ export type Message = {
   status?: string;
   /** Quiet model label next to Processing Prompt / Streaming once picked. */
   streamingModel?: string;
+  /** Orchestrator role: story, nsfw, coding, agent, … */
+  streamingRoute?: string;
   createdAt: number;
 };
 

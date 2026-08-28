@@ -185,6 +185,7 @@ export const Route = createFileRoute("/api/chat")({
                 type: "status",
                 message: "Processing Prompt…",
                 model: llm.model,
+                route: mode === "story" ? "story" : "general",
               });
 
               const completionsUrl = `${llm.baseUrl}/chat/completions`;
@@ -264,6 +265,7 @@ export const Route = createFileRoute("/api/chat")({
                       type: "status",
                       message: "Streaming…",
                       model: llm.model,
+                      route: mode === "story" ? "story" : "general",
                     });
                   }
                   if (delta?.reasoning_content) {

@@ -259,6 +259,7 @@ function MessageBubble({
           <StatusLine
             status={message.status}
             model={message.streamingModel}
+            route={message.streamingRoute}
           />
         ) : null}
         {message.metrics && !pending && (
@@ -278,9 +279,11 @@ function MessageBubble({
 function StatusLine({
   status,
   model,
+  route,
 }: {
   status?: string;
   model?: string;
+  route?: string;
 }) {
   const label = status || "Processing Prompt…";
   const showModel =
@@ -291,6 +294,7 @@ function StatusLine({
       {showModel ? (
         <span className="ml-1.5 font-mono text-[10px] font-normal tracking-tight text-muted-foreground/40">
           [{model}]
+          {route ? ` [${route}]` : ""}
         </span>
       ) : null}
     </p>
