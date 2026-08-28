@@ -494,7 +494,7 @@ async function generateViaChatPy(
       id: assistantId,
       role: "assistant",
       content: "",
-      status: "Processing Prompt…",
+      status: "Working — RAG / agent / prompt…",
       createdAt: Date.now(),
     },
     [],
