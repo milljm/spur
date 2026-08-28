@@ -104,40 +104,42 @@ export function Sidebar({
 
       <Separator />
 
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <SectionLabel>Branches</SectionLabel>
-          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-            {list.length}
-          </span>
-        </div>
-        <ScrollArea className="min-h-0 flex-1 px-2">
-          <ul className="space-y-1 pb-3">
-            {list.map((branch) => (
-              <BranchRow
-                key={branch.id}
-                branch={branch}
-                active={branch.id === currentId}
-                onSwitch={() => {
-                  const ok = switchBranch(branch.id);
-                  if (!ok) {
-                    toast.error(`Could not switch to ${branch.name}.`);
-                    return;
-                  }
-                  onNavigate?.();
-                }}
-                onDelete={() => {
-                  const result = deleteBranch(branch.id);
-                  if (!result.ok) {
-                    toast.error(result.error);
-                    return;
-                  }
-                  toast.success(`Deleted '${branch.name}'.`);
-                }}
-              />
-            ))}
-          </ul>
-          <div className="px-2">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-[10rem] flex-1 flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <SectionLabel>Branches</SectionLabel>
+            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              {list.length}
+            </span>
+          </div>
+          <ScrollArea className="min-h-0 flex-1 px-2">
+            <ul className="space-y-1 pb-3">
+              {list.map((branch) => (
+                <BranchRow
+                  key={branch.id}
+                  branch={branch}
+                  active={branch.id === currentId}
+                  onSwitch={() => {
+                    const ok = switchBranch(branch.id);
+                    if (!ok) {
+                      toast.error(`Could not switch to ${branch.name}.`);
+                      return;
+                    }
+                    onNavigate?.();
+                  }}
+                  onDelete={() => {
+                    const result = deleteBranch(branch.id);
+                    if (!result.ok) {
+                      toast.error(result.error);
+                      return;
+                    }
+                    toast.success(`Deleted '${branch.name}'.`);
+                  }}
+                />
+              ))}
+            </ul>
+          </ScrollArea>
+          <div className="shrink-0 px-4">
             <CreateBranchForm
               onCreate={(raw) => {
                 const result = createBranch(raw);
@@ -150,10 +152,22 @@ export function Sidebar({
                 return true;
               }}
             />
-            <HistoryTools />
-            <SlashHelp />
           </div>
-        </ScrollArea>
+        </div>
+
+        <Separator className="shrink-0" />
+
+        <div className="flex max-h-[48%] min-h-0 shrink-0 flex-col overflow-hidden">
+          <div className="flex items-center px-4 pt-4 pb-2">
+            <SectionLabel>Controls</SectionLabel>
+          </div>
+          <ScrollArea className="min-h-0 flex-1 px-2">
+            <div className="px-2 pb-3">
+              <HistoryTools />
+              <SlashHelp />
+            </div>
+          </ScrollArea>
+        </div>
       </div>
 
       <Separator />
@@ -319,7 +333,7 @@ function CreateBranchForm({
 
   return (
     <form
-      className="space-y-2 border-t border-border px-4 py-3"
+      className="space-y-2 border-t border-border py-3"
       onSubmit={(e) => {
         e.preventDefault();
         if (!name.trim()) return;
@@ -359,7 +373,7 @@ function HistoryTools() {
   const rewindTo = useChatStore((s) => s.rewindTo);
 
   return (
-    <details className="border-t border-border px-4 py-3">
+    <details className="py-3">
       <summary className="cursor-pointer text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
         History tools
       </summary>
@@ -429,7 +443,7 @@ function HistoryTools() {
 
 function SlashHelp() {
   return (
-    <details className="border-t border-border px-4 py-3">
+    <details className="border-t border-border py-3">
       <summary className="cursor-pointer text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
         Slash commands
       </summary>
