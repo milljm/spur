@@ -154,6 +154,9 @@ function EmptyState({
   mode: "assistant" | "story";
   locked: boolean;
 }) {
+  const lock = locked
+    ? `, a protected branch locked to ${mode} mode.`
+    : ` in ${mode} mode — toggle freely, or fork to keep this path.`;
   return (
     <div className="flex flex-col items-start gap-3 py-16">
       <p className="font-display text-3xl italic tracking-tight text-foreground">
@@ -161,15 +164,19 @@ function EmptyState({
       </p>
       <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
         You are on <span className="text-foreground">{name}</span>
-        {locked
-          ? `, a protected branch locked to ${mode} mode.`
-          : ` in ${mode} mode — toggle freely, or fork to keep this path.`}{" "}
-        Attach notes to retrieve them on the next turn. Use{" "}
-        <span className="font-mono text-foreground">\agent</span> for live
-        search, or switch to{" "}
-        <span className="text-foreground">research-notes</span> /{" "}
-        <span className="text-foreground">alt-ending</span> to see mode follow
-        the branch.
+        {lock} Attach notes to retrieve them on the next turn.{" "}
+        {mode === "story" ? (
+          <>
+            Switch to the <span className="text-foreground">assistant</span>{" "}
+            branch for research, tools, or live search.
+          </>
+        ) : (
+          <>
+            Use <span className="font-mono text-foreground">\agent</span> for
+            live search, or switch to the{" "}
+            <span className="text-foreground">story</span> branch to write.
+          </>
+        )}
       </p>
     </div>
   );
