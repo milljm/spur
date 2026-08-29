@@ -17,14 +17,14 @@
   --spur-border: color-mix(in oklab, #eceee9 12%, transparent);
   --spur-input: color-mix(in oklab, #eceee9 14%, transparent);
   --spur-ring: #c5c9c0;
-  --spur-user: #1c1f1c;
-  --spur-assistant: #151815;
+  --spur-user: #191f19;
+  --spur-assistant: #191c1a;
   --spur-shadow-border: 0 0 0 1px color-mix(in oklab, #eceee9 8%, transparent);
   --spur-shadow-hover: 0 0 0 1px color-mix(in oklab, #eceee9 13%, transparent);
-  --spur-turn: #8ee0c8;
-  --spur-turn-bg: rgba(14, 40, 34, 0.78);
-  --spur-turn-shadow: 0 1px 6px rgba(110, 210, 180, 0.32),
-    0 0 0 1px rgba(142, 224, 200, 0.2);
+  --spur-turn: #ff9100;
+  --spur-turn-bg: rgba(4, 49, 0, 0.78);
+  --spur-turn-shadow: 0 1px 6px rgba(124, 232, 122, 0.32),
+    0 0 0 1px rgba(217, 224, 142, 0.2);
   --spur-ttl-warn: #f0a8a0;
   --spur-ttl-warn-bg: rgba(48, 18, 16, 0.82);
   --spur-ttl-warn-shadow: 0 1px 6px rgba(220, 90, 80, 0.35),
@@ -57,19 +57,19 @@ html[data-theme="light"] {
   --spur-assistant: #ede8d8;
   --spur-shadow-border: 0 0 0 1px color-mix(in oklab, #3a3630 10%, transparent);
   --spur-shadow-hover: 0 0 0 1px color-mix(in oklab, #3a3630 16%, transparent);
-  --spur-turn: #1e6e5c;
-  --spur-turn-bg: rgba(255, 252, 245, 0.92);
-  --spur-turn-shadow: 0 1px 6px rgba(30, 110, 92, 0.22),
-    0 0 0 1px rgba(30, 110, 92, 0.28);
-  --spur-ttl-warn: #b94a3c;
-  --spur-ttl-warn-bg: rgba(255, 246, 242, 0.94);
-  --spur-ttl-warn-shadow: 0 1px 6px rgba(185, 74, 60, 0.22),
+  --spur-turn: #4e2c00;
+  --spur-turn-bg: rgba(110, 255, 100, 0.586);
+  --spur-turn-shadow: 0 1px 6px rgb(132, 66, 0),
+    0 0 0 1px rgba(30, 110, 34, 0.28);
+  --spur-ttl-warn: #280500;
+  --spur-ttl-warn-bg: rgba(255, 118, 118, 0.666);
+  --spur-ttl-warn-shadow: 0 1px 6px rgb(139, 63, 0),
     0 0 0 1px rgba(185, 74, 60, 0.28);
   --spur-hx-kw: #2d7a38;
   --spur-hx-st: #a84d72;
   --spur-hx-cm: #7a7468;
   --spur-hx-nu: #3b6ea8;
-  --spur-code: #f5f1e8;
+  --spur-code: #fffefd;
   --spur-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
 }
 
