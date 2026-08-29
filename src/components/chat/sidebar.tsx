@@ -450,7 +450,7 @@ function GeneratedFiles({
   if (files.length === 0) {
     return (
       <p className="text-xs text-muted-foreground">
-        Named code fences from the model show up here to download.
+        Files the LLM creates will appear here while they appear in history.
       </p>
     );
   }
