@@ -42,6 +42,8 @@ export type Message = {
   streamingRoute?: string;
   /** Packed prompt size (tokens) next to Processing Prompt / Streaming. */
   streamingContext?: number;
+  /** Basenames fetched via NEED_GOLD this turn. */
+  recalled?: string[];
   createdAt: number;
 };
 

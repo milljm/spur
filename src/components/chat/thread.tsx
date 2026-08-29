@@ -263,6 +263,7 @@ function MessageBubble({
             model={message.streamingModel}
             route={message.streamingRoute}
             context={message.streamingContext}
+            recalled={message.recalled}
           />
         ) : null}
         {message.metrics && !pending && (
@@ -271,6 +272,14 @@ function MessageBubble({
             {(message.metrics.generationTime - message.metrics.ttft).toFixed(2)}s
             · {message.metrics.tokenCount} tok ·{" "}
             {tps(message.metrics).toFixed(1)} T/s · {message.metrics.model}
+            {message.recalled?.length ? (
+              <span
+                className="ml-1.5 text-muted-foreground/40"
+                title={`Recalled ${message.recalled.join(", ")}`}
+              >
+                📄
+              </span>
+            ) : null}
           </p>
         )}
       </div>
@@ -286,16 +295,30 @@ function fmtContext(n?: number): string {
   return `[${k >= 10 ? k.toFixed(0) : k.toFixed(1)}k]`;
 }
 
+function RecallMark({ names }: { names?: string[] }) {
+  if (!names?.length) return null;
+  return (
+    <span
+      className="ml-1.5 text-[10px] text-muted-foreground/40"
+      title={`Recalled ${names.join(", ")}`}
+    >
+      📄
+    </span>
+  );
+}
+
 function StatusLine({
   status,
   model,
   route,
   context,
+  recalled,
 }: {
   status?: string;
   model?: string;
   route?: string;
   context?: number;
+  recalled?: string[];
 }) {
   const label = status || "Processing Prompt…";
   const recall = label.match(/^(Recalling Documents?…?)\s*(\[.*\])?\s*$/i);
@@ -321,8 +344,11 @@ function StatusLine({
           [{model}]
           {route ? ` [${route}]` : ""}
           {context ? ` ${fmtContext(context)}` : ""}
+          <RecallMark names={recalled} />
         </span>
-      ) : null}
+      ) : (
+        <RecallMark names={recalled} />
+      )}
     </p>
   );
 }
