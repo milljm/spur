@@ -300,6 +300,19 @@ function StatusLine({
   context?: number;
 }) {
   const label = status || "Processing Prompt…";
+  const recall = label.match(/^(Recalling Document…?)\s*(\[.*\])?\s*$/i);
+  if (recall) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        <span className="shimmer-text">{recall[1]}</span>
+        {recall[2] ? (
+          <span className="ml-1.5 font-mono text-[10px] font-normal tracking-tight text-muted-foreground/40">
+            {recall[2]}
+          </span>
+        ) : null}
+      </p>
+    );
+  }
   const showModel =
     Boolean(model) && /^(Streaming|Processing Prompt)/i.test(label);
   return (
