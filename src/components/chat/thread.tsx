@@ -257,9 +257,7 @@ function MessageBubble({
         {message.content ? (
           <Markdown text={message.content} />
         ) : null}
-        {pending &&
-        (!message.content ||
-          /Recalling Document/i.test(message.status || "")) ? (
+        {pending ? (
           <StatusLine
             status={message.status}
             model={message.streamingModel}
@@ -300,7 +298,7 @@ function StatusLine({
   context?: number;
 }) {
   const label = status || "Processing Prompt…";
-  const recall = label.match(/^(Recalling Document…?)\s*(\[.*\])?\s*$/i);
+  const recall = label.match(/^(Recalling Documents?…?)\s*(\[.*\])?\s*$/i);
   if (recall) {
     return (
       <p className="text-sm text-muted-foreground">
