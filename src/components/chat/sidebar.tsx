@@ -5,7 +5,6 @@ import {
   FileText,
   GitBranch,
   Lock,
-  Paperclip,
   PanelLeftClose,
   Plus,
   Download,
@@ -104,13 +103,10 @@ export function Sidebar({
 }) {
   const currentId = useChatStore((s) => s.currentId);
   const branches = useChatStore((s) => s.branches);
-  const pending = useChatStore((s) => s.pendingAttachments);
   const switchBranch = useChatStore((s) => s.switchBranch);
   const setMode = useChatStore((s) => s.setMode);
   const createBranch = useChatStore((s) => s.createBranch);
   const deleteBranch = useChatStore((s) => s.deleteBranch);
-  const removePending = useChatStore((s) => s.removePending);
-  const addFiles = useChatStore((s) => s.addFiles);
   const current = branches[currentId];
   const files = artifactsFromMessages(current?.messages ?? []);
 
@@ -223,70 +219,11 @@ export function Sidebar({
 
         <SidebarSection
           id="files"
-          title="Files"
-          defaultOpen
+          title="Downloadable Files"
+          defaultOpen={false}
           badge={files.length || undefined}
         >
           <GeneratedFiles files={files} />
-        </SidebarSection>
-
-        <SidebarSection
-          id="attachments"
-          title="Attachments"
-          defaultOpen
-          badge={pending.length || undefined}
-        >
-          <label className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-sm bg-secondary text-xs font-medium text-muted-foreground shadow-[var(--shadow-border)] transition-[box-shadow,background-color] duration-150 hover:bg-accent hover:shadow-[var(--shadow-border-hover)]">
-            <Paperclip className="size-3.5" />
-            Attach to next message
-            <input
-              type="file"
-              multiple
-              className="sr-only"
-              accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.md,.py,.json,.csv,.html,.js,.ts,.css"
-              onChange={async (e) => {
-                const files = [...(e.target.files ?? [])];
-                e.target.value = "";
-                if (!files.length) return;
-                const { added, skipped, unreadable } = await addFiles(files);
-                if (skipped) {
-                  toast.message(
-                    `Skipped ${skipped} unsupported file${skipped === 1 ? "" : "s"}.`,
-                  );
-                }
-                if (unreadable) {
-                  toast.error(
-                    `Couldn't read ${unreadable} file${unreadable === 1 ? "" : "s"}.`,
-                  );
-                }
-                if (added) {
-                  toast.success(
-                    `Attached ${added} file${added === 1 ? "" : "s"}.`,
-                  );
-                }
-              }}
-            />
-          </label>
-          {pending.length > 0 && (
-            <ul className="mt-2 space-y-1">
-              {pending.map((att) => (
-                <li
-                  key={att.id}
-                  className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
-                >
-                  <span className="min-w-0 flex-1 truncate">{att.name}</span>
-                  <button
-                    type="button"
-                    className="relative size-8 after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2"
-                    aria-label={`Remove ${att.name}`}
-                    onClick={() => removePending(att.id)}
-                  >
-                    <X className="size-3.5 text-muted-foreground" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
         </SidebarSection>
       </ScrollArea>
     </aside>
@@ -513,7 +450,7 @@ function GeneratedFiles({
   if (files.length === 0) {
     return (
       <p className="text-xs text-muted-foreground">
-        Named fences from the model show up here.
+        Named code fences from the model show up here to download.
       </p>
     );
   }
@@ -577,8 +514,8 @@ function GoldDocuments({
     >
       {docs.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          Attach a file in assistant mode — it lands here (whole file) and in
-          gold (chunks). Mention the name to load it.
+          Attach a file with the paperclip. After the turn it lives here.
+          Mention the name to load it again.
         </p>
       ) : (
         <ul className="space-y-1">

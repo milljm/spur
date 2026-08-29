@@ -164,7 +164,8 @@ function EmptyState({
       </p>
       <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
         You are on <span className="text-foreground">{name}</span>
-        {lock} Attach notes to retrieve them on the next turn.{" "}
+        {lock} Paperclip a file on this turn; after that it lives under
+        Documents — mention it by name to bring it back.{" "}
         {mode === "story" ? (
           <>
             Switch to the <span className="text-foreground">assistant</span>{" "}
