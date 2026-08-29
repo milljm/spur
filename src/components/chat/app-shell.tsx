@@ -33,7 +33,7 @@ export function AppShell() {
     <TooltipProvider>
       <div
         className={cn(
-          "relative flex h-dvh overflow-hidden bg-background text-foreground",
+          "relative flex h-dvh overflow-hidden bg-background paper text-foreground",
           sidebar.dragging && "select-none",
         )}
       >
@@ -99,7 +99,7 @@ export function AppShell() {
               aria-label="Close branches"
               onClick={() => setNavOpen(false)}
             />
-            <div className="relative h-full w-[min(20rem,88vw)] border-r border-border bg-card shadow-[var(--shadow-border)]">
+            <div className="relative h-full w-[min(20rem,88vw)] border-r border-border bg-card paper shadow-[var(--shadow-border)]">
               <div className="absolute right-2 top-2 z-10">
                 <Button
                   variant="ghost"
