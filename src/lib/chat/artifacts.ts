@@ -61,6 +61,10 @@ export function parseFenceInfo(
   return { lang, file };
 }
 
+function stripName(value: string): string {
+  return value.trim().replace(/^["'`]+|["'`]+$/g, "");
+}
+
 const LANG_EXT: Record<string, string> = {
   python: "py",
   py: "py",
