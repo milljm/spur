@@ -61,8 +61,85 @@ export function parseFenceInfo(
   return { lang, file };
 }
 
-function stripName(value: string): string {
-  return value.trim().replace(/^["'`]+|["'`]+$/g, "");
+const LANG_EXT: Record<string, string> = {
+  python: "py",
+  py: "py",
+  python3: "py",
+  javascript: "js",
+  js: "js",
+  jsx: "jsx",
+  typescript: "ts",
+  ts: "ts",
+  tsx: "tsx",
+  rust: "rs",
+  rs: "rs",
+  go: "go",
+  golang: "go",
+  ruby: "rb",
+  rb: "rb",
+  bash: "sh",
+  sh: "sh",
+  shell: "sh",
+  zsh: "zsh",
+  json: "json",
+  yaml: "yml",
+  yml: "yml",
+  html: "html",
+  css: "css",
+  sql: "sql",
+  c: "c",
+  cpp: "cpp",
+  "c++": "cpp",
+  java: "java",
+  kt: "kt",
+  kotlin: "kt",
+  swift: "swift",
+  php: "php",
+  r: "r",
+  lua: "lua",
+  toml: "toml",
+  xml: "xml",
+  md: "md",
+  markdown: "md",
+  text: "txt",
+  txt: "txt",
+};
+
+function nameFromBody(body: string): string | null {
+  const first = (body.split("\n")[0] ?? "").trim();
+  const hit = first.match(/^(?:#|\/\/|--)\s*([^\s]+\.[A-Za-z0-9]{1,8})\s*$/);
+  if (hit && isFilename(hit[1] ?? "")) return stripName(hit[1] ?? "");
+  return null;
+}
+
+function looksLikeFile(body: string): boolean {
+  const lines = body.split("\n").filter((l) => l.trim());
+  if (lines.length >= 4) return true;
+  if (/^#!/m.test(body)) return true;
+  return /\b(def |class |function |fn |pub fn |package |fn main)/m.test(body);
+}
+
+function fallbackName(lang: string, body: string, used: Set<string>): string | null {
+  const fromBody = nameFromBody(body);
+  if (fromBody) return uniqueName(fromBody, used);
+  if (!looksLikeFile(body)) return null;
+  const ext = LANG_EXT[lang.toLowerCase()];
+  if (!ext) return null;
+  return uniqueName(`untitled.${ext}`, used);
+}
+
+function uniqueName(base: string, used: Set<string>): string {
+  if (!used.has(base.toLowerCase())) return base;
+  const dot = base.lastIndexOf(".");
+  const stem = dot > 0 ? base.slice(0, dot) : base;
+  const ext = dot > 0 ? base.slice(dot) : "";
+  let i = 2;
+  let next = `${stem}-${i}${ext}`;
+  while (used.has(next.toLowerCase())) {
+    i += 1;
+    next = `${stem}-${i}${ext}`;
+  }
+  return next;
 }
 
 const OPEN_FENCE = /^( {0,3})(`{3,}|~{3,})([^\n]*)$/;
@@ -75,6 +152,7 @@ export function extractArtifacts(text: string): Artifact[] {
   const source = typeof text === "string" ? text : String(text ?? "");
   const lines = source.split("\n");
   const out: Artifact[] = [];
+  const used = new Set<string>();
   let i = 0;
   let prev = "";
   while (i < lines.length) {
@@ -91,8 +169,10 @@ export function extractArtifacts(text: string): Artifact[] {
       }
       if (i < lines.length) i += 1;
       const code = body.join("\n").replace(/\n$/, "");
-      if (meta.file && code.trim()) {
-        out.push({ file: meta.file, lang: meta.lang, text: code });
+      const file = meta.file || fallbackName(meta.lang, code, used);
+      if (file && code.trim()) {
+        used.add(file.toLowerCase());
+        out.push({ file, lang: meta.lang, text: code });
       }
       prev = "";
       continue;
