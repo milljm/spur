@@ -256,7 +256,10 @@ function MessageBubble({
         )}
         {message.content ? (
           <Markdown text={message.content} />
-        ) : pending ? (
+        ) : null}
+        {pending &&
+        (!message.content ||
+          /Recalling Document/i.test(message.status || "")) ? (
           <StatusLine
             status={message.status}
             model={message.streamingModel}
