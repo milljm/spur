@@ -169,3 +169,16 @@ export async function postOp(
   json.ok = Boolean(json.ok);
   return json;
 }
+
+export type GoldDocument = { name: string; chars: number };
+
+export async function listDocuments(): Promise<GoldDocument[]> {
+  const res = await fetch(url("/api/documents"));
+  if (!res.ok) return [];
+  const json = (await res.json()) as { documents?: GoldDocument[] };
+  return Array.isArray(json.documents) ? json.documents : [];
+}
+
+export async function deleteDocument(name: string): Promise<RemoteOp> {
+  return postOp("/api/documents/delete", { name });
+}
