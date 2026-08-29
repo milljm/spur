@@ -4,6 +4,13 @@ export type Artifact = {
   text: string;
 };
 
+export type LivedArtifact = Artifact & {
+  /** Turns left in the Downloadable Files window (1–ARTIFACT_TTL). */
+  remaining: number;
+};
+
+export const ARTIFACT_TTL = 4;
+
 const FILE_TOKEN = /^(?:\.\/)?[\w.@+-]+(?:\/[\w.@+-]+)*\.[A-Za-z0-9]{1,8}$/;
 
 export function isFilename(raw: string): boolean {
@@ -189,12 +196,18 @@ export function extractArtifacts(text: string): Artifact[] {
 
 export function artifactsFromMessages(
   messages: { role: string; content: string }[],
-): Artifact[] {
-  const byName = new Map<string, Artifact>();
+): LivedArtifact[] {
+  const currentTurn = messages.filter((m) => m.role === "user").length;
+  const windowStart = Math.max(1, currentTurn - ARTIFACT_TTL + 1);
+  const byName = new Map<string, LivedArtifact>();
+  let turn = 0;
   for (const m of messages) {
+    if (m.role === "user") turn += 1;
     if (m.role !== "assistant" || !m.content) continue;
+    if (turn < windowStart) continue;
+    const remaining = ARTIFACT_TTL - (currentTurn - turn);
     for (const art of extractArtifacts(m.content)) {
-      byName.set(art.file, art);
+      byName.set(art.file, { ...art, remaining });
     }
   }
   return [...byName.values()];
