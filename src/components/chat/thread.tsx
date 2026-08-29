@@ -267,11 +267,13 @@ function MessageBubble({
           />
         ) : null}
         {message.metrics && !pending && (
-          <p className="mt-3 font-mono text-xs tabular-nums text-muted-foreground">
+          <p className="mt-3 font-mono text-[11px] tabular-nums text-muted-foreground">
             TTFT {message.metrics.ttft.toFixed(2)}s · Gen{" "}
             {(message.metrics.generationTime - message.metrics.ttft).toFixed(2)}s
             · {message.metrics.tokenCount} tok ·{" "}
-            {tps(message.metrics).toFixed(1)} T/s · {message.metrics.model}
+            {tps(message.metrics).toFixed(1)} T/s · DUP{" "}
+            {fmtK(message.metrics.tokenSavings)} · CTX{" "}
+            {fmtK(message.metrics.promptTokens)} · {message.metrics.model}
             {message.recalled?.length ? (
               <span
                 className="ml-1.5 text-muted-foreground/40"
@@ -287,6 +289,14 @@ function MessageBubble({
   );
 }
 
+
+function fmtK(n?: number): string {
+  if (!n || n <= 0) return "0";
+  if (n < 1000) return String(Math.round(n));
+  const k = n / 1000;
+  const s = k >= 10 ? k.toFixed(0) : k.toFixed(1).replace(/\.0$/, "");
+  return `${s}K`;
+}
 
 function fmtContext(n?: number): string {
   if (!n || n <= 0) return "";
