@@ -2,6 +2,11 @@ import { Fragment, useState, type ReactNode } from "react";
 import { Check, Copy, Download } from "lucide-react";
 import { downloadTextFile, parseFenceInfo } from "@/lib/chat/artifacts";
 import { highlightCode, normalizeLang } from "@/lib/chat/highlight";
+import {
+  PYGMENTS_STYLES,
+  SYNTAX_AUTO,
+  useSyntaxPref,
+} from "@/lib/chat/syntax";
 import { parseTableAt, type MdTable, type TableAlign } from "@/lib/chat/md-table";
 import { cn } from "@/lib/utils";
 
@@ -161,6 +166,7 @@ function CodeBlock({
 }) {
   const name = normalizeLang(lang);
   const [copied, setCopied] = useState(false);
+  const [syntax, setSyntax] = useSyntaxPref();
   const label = file || (name && name !== "text" ? name : "code");
 
   async function copy() {
@@ -187,6 +193,19 @@ function CodeBlock({
           {label}
         </span>
         <div className="flex items-center">
+          <select
+            aria-label="Syntax highlighting theme"
+            value={syntax}
+            onChange={(e) => setSyntax(e.target.value)}
+            className="mr-0.5 h-8 max-w-[8.5rem] cursor-pointer truncate rounded-sm bg-transparent px-1 font-mono text-[10px] text-muted-foreground outline-none hover:text-foreground"
+          >
+            <option value={SYNTAX_AUTO}>auto</option>
+            {PYGMENTS_STYLES.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.id}
+              </option>
+            ))}
+          </select>
           {file && (
             <button
               type="button"
