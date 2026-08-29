@@ -141,15 +141,37 @@ export function AppShell() {
           />
         </div>
       </div>
-      <Toaster
-        theme="dark"
-        position="top-center"
-        toastOptions={{
-          className:
-            "bg-popover text-popover-foreground shadow-[var(--shadow-border)] border-0",
-        }}
-      />
+      <ThemeToaster />
     </TooltipProvider>
+  );
+}
+
+function ThemeToaster() {
+  const [theme, setTheme] = useState<"light" | "dark">(() =>
+    typeof document === "undefined"
+      ? "dark"
+      : document.documentElement.dataset.theme === "light"
+        ? "light"
+        : "dark",
+  );
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () =>
+      setTheme(root.dataset.theme === "light" ? "light" : "dark");
+    read();
+    const obs = new MutationObserver(read);
+    obs.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <Toaster
+      theme={theme}
+      position="top-center"
+      toastOptions={{
+        className:
+          "bg-popover text-popover-foreground shadow-[var(--shadow-border)] border-0",
+      }}
+    />
   );
 }
 
