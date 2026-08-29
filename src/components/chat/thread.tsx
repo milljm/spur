@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ThemeToggle } from "./theme-toggle";
+import { Markdown } from "./markdown";
 
 const NEAR_BOTTOM = 96;
 
