@@ -529,6 +529,7 @@ async function generateViaChatPy(
   let model = "";
   let route = "";
   let context = 0;
+  let recalling = false;
 
   const ac = new AbortController();
   abortRef.current = ac;
@@ -567,11 +568,12 @@ async function generateViaChatPy(
           if (event.model) model = event.model;
           if (event.route) route = event.route;
           if (event.context) context = event.context;
+          recalling = /Recalling Document/i.test(event.message || "");
           patch({
             status: event.message,
-            streamingModel: event.model || model || undefined,
-            streamingRoute: event.route || route || undefined,
-            streamingContext: event.context || context || undefined,
+            streamingModel: recalling ? undefined : event.model || model || undefined,
+            streamingRoute: recalling ? undefined : event.route || route || undefined,
+            streamingContext: recalling ? undefined : event.context || context || undefined,
           });
         } else if (event.type === "token") {
           if (first) {
@@ -583,10 +585,10 @@ async function generateViaChatPy(
           patch({
             content,
             reasoning: reasoning || undefined,
-            status: content ? undefined : "Streaming…",
-            streamingModel: content ? undefined : model || undefined,
-            streamingRoute: content ? undefined : route || undefined,
-            streamingContext: content ? undefined : context || undefined,
+            status: content ? undefined : recalling ? "Recalling Document…" : "Streaming…",
+            streamingModel: content || recalling ? undefined : model || undefined,
+            streamingRoute: content || recalling ? undefined : route || undefined,
+            streamingContext: content || recalling ? undefined : context || undefined,
           });
         } else if (event.type === "reasoning") {
           if (first) {
@@ -596,10 +598,10 @@ async function generateViaChatPy(
           reasoning += event.content;
           patch({
             reasoning,
-            status: content ? undefined : "Streaming…",
-            streamingModel: content ? undefined : model || undefined,
-            streamingRoute: content ? undefined : route || undefined,
-            streamingContext: content ? undefined : context || undefined,
+            status: content ? undefined : recalling ? "Recalling Document…" : "Streaming…",
+            streamingModel: content || recalling ? undefined : model || undefined,
+            streamingRoute: content || recalling ? undefined : route || undefined,
+            streamingContext: content || recalling ? undefined : context || undefined,
           });
         } else if (event.type === "usage") {
           promptTokens = event.promptTokens;
