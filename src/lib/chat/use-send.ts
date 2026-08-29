@@ -568,7 +568,7 @@ async function generateViaChatPy(
           if (event.model) model = event.model;
           if (event.route) route = event.route;
           if (event.context) context = event.context;
-          recalling = /Recalling Document/i.test(event.message || "");
+          recalling = /Recalling Documents?/i.test(event.message || "");
           patch({
             status: event.message,
             streamingModel: recalling ? undefined : event.model || model || undefined,
@@ -580,15 +580,18 @@ async function generateViaChatPy(
             ttft = (performance.now() - started) / 1000;
             first = false;
           }
-          // spur-server already classified token vs reasoning.
           content += event.content;
           patch({
             content,
             reasoning: reasoning || undefined,
-            status: content ? undefined : recalling ? "Recalling Document…" : "Streaming…",
-            streamingModel: content || recalling ? undefined : model || undefined,
-            streamingRoute: content || recalling ? undefined : route || undefined,
-            streamingContext: content || recalling ? undefined : context || undefined,
+            ...(recalling
+              ? {}
+              : {
+                  status: "Streaming…",
+                  streamingModel: model || undefined,
+                  streamingRoute: route || undefined,
+                  streamingContext: context || undefined,
+                }),
           });
         } else if (event.type === "reasoning") {
           if (first) {
@@ -598,10 +601,14 @@ async function generateViaChatPy(
           reasoning += event.content;
           patch({
             reasoning,
-            status: content ? undefined : recalling ? "Recalling Document…" : "Streaming…",
-            streamingModel: content || recalling ? undefined : model || undefined,
-            streamingRoute: content || recalling ? undefined : route || undefined,
-            streamingContext: content || recalling ? undefined : context || undefined,
+            ...(recalling
+              ? {}
+              : {
+                  status: "Streaming…",
+                  streamingModel: model || undefined,
+                  streamingRoute: route || undefined,
+                  streamingContext: context || undefined,
+                }),
           });
         } else if (event.type === "usage") {
           promptTokens = event.promptTokens;
