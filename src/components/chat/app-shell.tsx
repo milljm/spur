@@ -50,7 +50,7 @@ export function AppShell() {
           }}
         >
           <div className="h-full" style={{ width: sidebar.width }}>
-            <Sidebar onCollapse={() => sidebar.setOpen(false)} />
+            <Sidebar streaming={streaming} onCollapse={() => sidebar.setOpen(false)} />
           </div>
           {sidebar.open && (
             <div
@@ -110,7 +110,7 @@ export function AppShell() {
                   <X />
                 </Button>
               </div>
-              <Sidebar onNavigate={() => setNavOpen(false)} />
+              <Sidebar streaming={streaming} onNavigate={() => setNavOpen(false)} />
             </div>
           </div>
         )}
