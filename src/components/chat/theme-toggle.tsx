@@ -8,6 +8,7 @@ import {
   resolveTheme,
   type ThemePref,
 } from "@/lib/theme";
+import { applySyntax, readSyntaxPref } from "@/lib/chat/syntax";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -27,13 +28,17 @@ export function ThemeToggle() {
   useEffect(() => {
     const stored = readThemePref();
     setPref(stored);
-    applyTheme(stored);
+    const resolved = applyTheme(stored);
+    applySyntax(readSyntaxPref(), resolved);
   }, []);
 
   useEffect(() => {
     if (pref !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: light)");
-    const onChange = () => applyTheme("system");
+    const onChange = () => {
+      const resolved = applyTheme("system");
+      applySyntax(readSyntaxPref(), resolved);
+    };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, [pref]);
@@ -41,7 +46,8 @@ export function ThemeToggle() {
   function choose(next: ThemePref) {
     setPref(next);
     persistThemePref(next);
-    applyTheme(next);
+    const resolved = applyTheme(next);
+    applySyntax(readSyntaxPref(), resolved);
   }
 
   const resolved = resolveTheme(pref);
