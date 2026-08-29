@@ -562,6 +562,7 @@ function GoldDocuments({
       defaultOpen={false}
       badge={docs.length || undefined}
     >
+      <div className="space-y-2">
       {docs.length === 0 ? (
         <p className="text-xs text-muted-foreground">
           Attach a file with the paperclip. After the turn it lives here.
@@ -602,6 +603,10 @@ function GoldDocuments({
           ))}
         </ul>
       )}
+      <p className="text-[10px] leading-relaxed text-muted-foreground/70">
+        Files available for recall by the LLM.
+      </p>
+      </div>
     </SidebarSection>
   );
 }
