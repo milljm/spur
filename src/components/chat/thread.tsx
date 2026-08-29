@@ -18,7 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Markdown } from "./markdown";
+import { ThemeToggle } from "./theme-toggle";
 
 const NEAR_BOTTOM = 96;
 
@@ -96,6 +96,7 @@ export function Thread({
             </span>
           </p>
         </div>
+        <ThemeToggle />
       </header>
 
       <div className="relative min-h-0 flex-1">
@@ -221,12 +222,10 @@ function MessageBubble({
       >
         {isUser && turn != null && turn > 0 ? (
           <span
-            className="pointer-events-none absolute -right-1 -top-2 z-10 rounded-md px-1.5 py-px font-mono text-[10px] tabular-nums tracking-tight"
+            className="pointer-events-none absolute -right-1 -top-2 z-10 rounded-md px-1.5 py-px font-mono text-[10px] tabular-nums tracking-tight text-turn"
             style={{
-              color: "#8ee0c8",
-              background: "rgba(14, 40, 34, 0.78)",
-              boxShadow:
-                "0 1px 6px rgba(110, 210, 180, 0.32), 0 0 0 1px rgba(142, 224, 200, 0.2)",
+              background: "var(--spur-turn-bg)",
+              boxShadow: "var(--spur-turn-shadow)",
             }}
             title={`Turn ${turn}`}
           >
@@ -242,7 +241,7 @@ function MessageBubble({
                   <img
                     src={att.dataUrl}
                     alt={att.name}
-                    className="mt-2 max-h-48 rounded-sm outline outline-1 -outline-offset-1 outline-white/10"
+                    className="mt-2 max-h-48 rounded-sm outline outline-1 -outline-offset-1 outline-foreground/10"
                   />
                 )}
               </li>

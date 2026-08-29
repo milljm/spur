@@ -456,17 +456,15 @@ function SlashHelp() {
 function ttlBadgeStyle(remaining: number): React.CSSProperties {
   if (remaining <= 1) {
     return {
-      color: "#f0a8a0",
-      background: "rgba(48, 18, 16, 0.82)",
-      boxShadow:
-        "0 1px 6px rgba(220, 90, 80, 0.35), 0 0 0 1px rgba(240, 168, 160, 0.22)",
+      color: "var(--spur-ttl-warn)",
+      background: "var(--spur-ttl-warn-bg)",
+      boxShadow: "var(--spur-ttl-warn-shadow)",
     };
   }
   return {
-    color: "#8ee0c8",
-    background: "rgba(14, 40, 34, 0.78)",
-    boxShadow:
-      "0 1px 6px rgba(110, 210, 180, 0.32), 0 0 0 1px rgba(142, 224, 200, 0.2)",
+    color: "var(--spur-turn)",
+    background: "var(--spur-turn-bg)",
+    boxShadow: "var(--spur-turn-shadow)",
   };
 }
 
