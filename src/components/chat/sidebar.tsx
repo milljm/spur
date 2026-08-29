@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BookOpen,
   Bot,
+  FileText,
   GitBranch,
   Lock,
   Paperclip,
@@ -17,7 +18,8 @@ import { toast } from "sonner";
 import { artifactsFromMessages, downloadTextFile } from "@/lib/chat/artifacts";
 import { isLockedBranch, modeOf, turnCount } from "@/lib/chat/branch-mode";
 import { SLASH_HELP } from "@/lib/chat/commands";
-import { usesChatPy } from "@/lib/chat/remote";
+import { listDocuments, deleteDocument, usesChatPy } from "@/lib/chat/remote";
+import type { GoldDocument } from "@/lib/chat/remote";
 import { useChatStore } from "@/lib/chat/store";
 import type { Branch } from "@/lib/chat/types";
 import { cn } from "@/lib/utils";
@@ -217,6 +219,7 @@ export function Sidebar({
 
         <HistoryTools />
         <SlashHelp />
+        <GoldDocuments currentId={currentId} messageN={current?.messages.length ?? 0} />
 
         <SidebarSection
           id="files"
@@ -533,5 +536,85 @@ function GeneratedFiles({
         </li>
       ))}
     </ul>
+  );
+}
+
+function fmtChars(n: number): string {
+  if (n < 1000) return `${n}`;
+  const k = n / 1000;
+  return k >= 10 ? `${k.toFixed(0)}k` : `${k.toFixed(1)}k`;
+}
+
+function GoldDocuments({
+  currentId,
+  messageN,
+}: {
+  currentId: string;
+  messageN: number;
+}) {
+  const [docs, setDocs] = useState<GoldDocument[]>([]);
+  const refresh = () => {
+    if (!usesChatPy()) {
+      setDocs([]);
+      return;
+    }
+    listDocuments()
+      .then(setDocs)
+      .catch(() => setDocs([]));
+  };
+  useEffect(() => {
+    refresh();
+  }, [currentId, messageN]);
+
+  if (!usesChatPy()) return null;
+
+  return (
+    <SidebarSection
+      id="documents"
+      title="Documents"
+      defaultOpen={false}
+      badge={docs.length || undefined}
+    >
+      {docs.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          Attach a file in assistant mode — it lands here (whole file) and in
+          gold (chunks). Mention the name to load it.
+        </p>
+      ) : (
+        <ul className="space-y-1">
+          {docs.map((doc) => (
+            <li
+              key={doc.name}
+              className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
+            >
+              <FileText className="size-3 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1 truncate" title={doc.name}>
+                {doc.name}
+              </span>
+              <span className="font-mono text-[10px] tabular-nums text-muted-foreground/50">
+                {fmtChars(doc.chars)}
+              </span>
+              <button
+                type="button"
+                className="relative size-8 text-muted-foreground after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2 hover:text-destructive"
+                aria-label={`Delete ${doc.name}`}
+                onClick={async () => {
+                  if (!window.confirm(`Remove ${doc.name} from gold?`)) return;
+                  const result = await deleteDocument(doc.name);
+                  if (!result.ok) {
+                    toast.error(result.error || `Could not delete ${doc.name}`);
+                    return;
+                  }
+                  toast.success(`Deleted ${doc.name}`);
+                  refresh();
+                }}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SidebarSection>
   );
 }
