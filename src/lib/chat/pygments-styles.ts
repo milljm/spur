@@ -12,7 +12,6 @@ export type PygmentsPalette = {
 };
 
 export const PYGMENTS_STYLES: PygmentsPalette[] = [
-  { id: "default", kw: "#008000", st: "#ba2121", cm: "#3d7b7b", nu: "#666666", fn: "#0000ff", fg: "#000000", bg: "#f8f8f8" },
   { id: "bw", kw: "#000000", st: "#000000", cm: "#000000", nu: "#000000", fn: "#000000", fg: "#000000", bg: "#ffffff" },
   { id: "sas", kw: "#2c2cff", st: "#800080", cm: "#008800", nu: "#2c8553", fn: "#2c2cff", fg: "#000000", bg: "#ffffff" },
   { id: "staroffice", kw: "#000080", st: "#000080", cm: "#696969", nu: "#000080", fn: "#000080", fg: "#000080", bg: "#ffffff" },
@@ -59,8 +58,8 @@ export const PYGMENTS_STYLES: PygmentsPalette[] = [
   { id: "native", kw: "#6ebf26", st: "#ed9d13", cm: "#ababab", nu: "#51b2fd", fn: "#71adff", fg: "#d0d0d0", bg: "#202020" },
   { id: "inkpot", kw: "#808bed", st: "#ffcd8b", cm: "#cd8b00", nu: "#f0ad6d", fn: "#c080d0", fg: "#cfbfad", bg: "#1e1e27" },
   { id: "night-owl", kw: "#000000", st: "#000000", cm: "#888888", nu: "#000000", fn: "#000000", fg: "#000000", bg: "#ffffff" },
-  { id: "fruity", kw: "#fb660a", st: "#0086d2", cm: "#008800", nu: "#0086f7", fn: "#ff0086", fg: "#ffffff", bg: "#111111" },
-  { id: "vim", kw: "#cdcd00", st: "#cd0000", cm: "#000080", nu: "#cd00cd", fn: "#cdcd00", fg: "#cccccc", bg: "#000000" },
+  { id: "fruity", kw: "#c34b00", st: "#0086d2", cm: "#008800", nu: "#0086f7", fn: "#ff0086", fg: "#ffffff", bg: "#111111" },
+  { id: "vim", kw: "#cdcd00", st: "#cd0000", cm: "#000080", nu: "#cb006c", fn: "#cdcd00", fg: "#cccccc", bg: "#000000" },
   { id: "lilypond", kw: "#000000", st: "#000000", cm: "#888888", nu: "#000000", fn: "#000000", fg: "#000000", bg: "#ffffff" },
 ];
 
