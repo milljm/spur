@@ -99,6 +99,20 @@ export function highlightCode(code: string, langRaw: string): string {
   if (words) {
     take(new RegExp(`\\b(?:${words.join("|")})\\b`, "g"), "kw");
   }
+  const fnRe = /\b(?:def|fn|func|function|class)\s+([A-Za-z_][\w]*)/g;
+  fnRe.lastIndex = 0;
+  let fm: RegExpExecArray | null;
+  while ((fm = fnRe.exec(escaped))) {
+    const name = fm[1];
+    const start = fm.index + fm[0].lastIndexOf(name);
+    tokens.push({
+      start,
+      end: start + name.length,
+      cls: "fn",
+      text: name,
+    });
+  }
+  take(/\b([A-Za-z_][\w]*)(?=\s*\()/g, "fn");
 
   tokens.sort((a, b) => a.start - b.start || b.end - a.end);
   const kept: typeof tokens = [];
