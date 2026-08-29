@@ -181,7 +181,7 @@ function CodeBlock({
   }
 
   return (
-    <div className="my-3 overflow-hidden rounded-md bg-code outline outline-1 -outline-offset-1 outline-foreground/10">
+    <div className="my-3 overflow-hidden rounded-md bg-code text-code-fg outline outline-1 -outline-offset-1 outline-foreground/10">
       <div className="flex items-center justify-between gap-2 border-b border-border px-2 py-0.5">
         <span className="min-w-0 truncate px-1 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
           {label}
