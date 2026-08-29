@@ -119,6 +119,13 @@ export function Thread({
                 <MessageBubble
                   key={msg.id}
                   message={msg}
+                  turn={
+                    msg.role === "user"
+                      ? branch.messages
+                          .slice(0, i + 1)
+                          .filter((m) => m.role === "user").length
+                      : undefined
+                  }
                   pending={
                     streaming &&
                     msg.role === "assistant" &&
@@ -186,10 +193,12 @@ function EmptyState({
 function MessageBubble({
   message,
   pending,
+  turn,
   onInspect,
 }: {
   message: Message;
   pending: boolean;
+  turn?: number;
   onInspect?: () => void;
 }) {
   const isUser = message.role === "user";
@@ -199,12 +208,26 @@ function MessageBubble({
     >
       <div
         className={cn(
-          "max-w-[min(100%,40rem)] px-4 py-3",
+          "relative max-w-[min(100%,40rem)] px-4 py-3",
           isUser
             ? "ml-auto rounded-lg rounded-br-xs bg-user-bubble"
             : "rounded-lg rounded-bl-xs bg-assistant-bubble",
         )}
       >
+        {isUser && turn != null && turn > 0 ? (
+          <span
+            className="pointer-events-none absolute -right-1 -top-2 z-10 rounded-md px-1.5 py-px font-mono text-[10px] tabular-nums tracking-tight"
+            style={{
+              color: "#8ee0c8",
+              background: "rgba(14, 40, 34, 0.78)",
+              boxShadow:
+                "0 1px 6px rgba(110, 210, 180, 0.32), 0 0 0 1px rgba(142, 224, 200, 0.2)",
+            }}
+            title={`Turn ${turn}`}
+          >
+            {turn}
+          </span>
+        ) : null}
         {message.attachments && message.attachments.length > 0 && (
           <ul className="mb-2 space-y-1">
             {message.attachments.map((att) => (
@@ -267,7 +290,7 @@ function MessageBubble({
           />
         ) : null}
         {message.metrics && !pending && (
-          <p className="mt-3 font-mono text-[11px] tabular-nums text-muted-foreground">
+          <p className="mt-3 font-mono text-[10px] tabular-nums text-muted-foreground">
             TTFT {message.metrics.ttft.toFixed(2)}s · Gen{" "}
             {(message.metrics.generationTime - message.metrics.ttft).toFixed(2)}s
             · {message.metrics.tokenCount} tok ·{" "}
