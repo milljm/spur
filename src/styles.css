@@ -47,14 +47,14 @@ html[data-theme="light"] {
   --spur-primary-fg: #f7f4ed;
   --spur-secondary: #e3dccb;
   --spur-muted: #e3dccb;
-  --spur-muted-fg: #7a7468;
+  --spur-muted-fg: #5d512d;
   --spur-accent: #ddd6c6;
   --spur-destructive: #b94a3c;
   --spur-border: color-mix(in oklab, #3a3630 12%, transparent);
   --spur-input: color-mix(in oklab, #3a3630 14%, transparent);
   --spur-ring: #6b6558;
-  --spur-user: #e4dccb;
-  --spur-assistant: #d8cfbb;
+  --spur-user: #d4cdbd;
+  --spur-assistant: #ede8d8;
   --spur-shadow-border: 0 0 0 1px color-mix(in oklab, #3a3630 10%, transparent);
   --spur-shadow-hover: 0 0 0 1px color-mix(in oklab, #3a3630 16%, transparent);
   --spur-turn: #1e6e5c;
@@ -69,7 +69,7 @@ html[data-theme="light"] {
   --spur-hx-st: #a84d72;
   --spur-hx-cm: #7a7468;
   --spur-hx-nu: #3b6ea8;
-  --spur-code: #c5c0b6;
+  --spur-code: #f5f1e8;
   --spur-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
 }
 
