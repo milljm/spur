@@ -355,7 +355,7 @@ function CreateBranchForm({
           <Plus />
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-[10px] leading-relaxed text-muted-foreground/70">
         Append @N to fork from the first N turns.
       </p>
     </form>
@@ -445,7 +445,7 @@ function SlashHelp() {
         {SLASH_HELP.map((row) => (
           <li key={row.cmd} className="space-y-0.5 text-xs">
             <code className="font-mono text-foreground/80">{row.cmd}</code>
-            <p className="text-muted-foreground">{row.hint}</p>
+            <p className="text-[10px] leading-relaxed text-muted-foreground/70">{row.hint}</p>
           </li>
         ))}
       </ul>
@@ -477,8 +477,8 @@ function GeneratedFiles({
 }) {
   if (files.length === 0) {
     return (
-      <p className="text-xs text-muted-foreground">
-        Files the LLM creates appear here for {ARTIFACT_TTL} turns after they
+      <p className="text-[10px] leading-relaxed text-muted-foreground/70">
+        Files the AI creates appear here for {ARTIFACT_TTL} turns after they
         show up in history.
       </p>
     );
@@ -604,7 +604,7 @@ function GoldDocuments({
         </ul>
       )}
       <p className="text-[10px] leading-relaxed text-muted-foreground/70">
-        Files available for recall by the LLM.
+        Files available for recall by the AI.
       </p>
       </div>
     </SidebarSection>
