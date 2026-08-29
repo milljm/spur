@@ -260,6 +260,7 @@ function MessageBubble({
             status={message.status}
             model={message.streamingModel}
             route={message.streamingRoute}
+            context={message.streamingContext}
           />
         ) : null}
         {message.metrics && !pending && (
@@ -276,14 +277,23 @@ function MessageBubble({
 }
 
 
+function fmtContext(n?: number): string {
+  if (!n || n <= 0) return "";
+  if (n < 1000) return `[${n}]`;
+  const k = n / 1000;
+  return `[${k >= 10 ? k.toFixed(0) : k.toFixed(1)}k]`;
+}
+
 function StatusLine({
   status,
   model,
   route,
+  context,
 }: {
   status?: string;
   model?: string;
   route?: string;
+  context?: number;
 }) {
   const label = status || "Processing Prompt…";
   const showModel =
@@ -295,6 +305,7 @@ function StatusLine({
         <span className="ml-1.5 font-mono text-[10px] font-normal tracking-tight text-muted-foreground/40">
           [{model}]
           {route ? ` [${route}]` : ""}
+          {context ? ` ${fmtContext(context)}` : ""}
         </span>
       ) : null}
     </p>

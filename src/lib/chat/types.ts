@@ -40,6 +40,8 @@ export type Message = {
   streamingModel?: string;
   /** Orchestrator role: story, nsfw, coding, agent, … */
   streamingRoute?: string;
+  /** Packed prompt size (tokens) next to Processing Prompt / Streaming. */
+  streamingContext?: number;
   createdAt: number;
 };
 
