@@ -96,10 +96,12 @@ export function Sidebar({
   className,
   onNavigate,
   onCollapse,
+  streaming = false,
 }: {
   className?: string;
   onNavigate?: () => void;
   onCollapse?: () => void;
+  streaming?: boolean;
 }) {
   const currentId = useChatStore((s) => s.currentId);
   const branches = useChatStore((s) => s.branches);
@@ -215,7 +217,11 @@ export function Sidebar({
 
         <HistoryTools />
         <SlashHelp />
-        <GoldDocuments currentId={currentId} messageN={current?.messages.length ?? 0} />
+        <GoldDocuments
+          currentId={currentId}
+          messageN={current?.messages.length ?? 0}
+          streaming={streaming}
+        />
 
         <SidebarSection
           id="files"
@@ -485,9 +491,11 @@ function fmtChars(n: number): string {
 function GoldDocuments({
   currentId,
   messageN,
+  streaming,
 }: {
   currentId: string;
   messageN: number;
+  streaming: boolean;
 }) {
   const [docs, setDocs] = useState<GoldDocument[]>([]);
   const refresh = () => {
@@ -500,8 +508,14 @@ function GoldDocuments({
       .catch(() => setDocs([]));
   };
   useEffect(() => {
+    if (streaming) return;
     refresh();
-  }, [currentId, messageN]);
+  }, [currentId, messageN, streaming]);
+  useEffect(() => {
+    const onDocs = () => refresh();
+    window.addEventListener("spur-documents", onDocs);
+    return () => window.removeEventListener("spur-documents", onDocs);
+  }, []);
 
   if (!usesChatPy()) return null;
 

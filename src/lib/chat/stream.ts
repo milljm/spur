@@ -17,6 +17,7 @@ export type ChatEvent =
   | { type: "reasoning"; content: string }
   | { type: "usage"; promptTokens: number; completionTokens: number; model: string }
   | { type: "error"; error: string }
+  | { type: "documents"; documents: { name: string; chars: number }[] }
   | { type: "done" };
 
 export async function streamSse(

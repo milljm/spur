@@ -561,7 +561,9 @@ async function generateViaChatPy(
         })),
       },
       (event) => {
-        if (event.type === "status") {
+        if (event.type === "documents") {
+          window.dispatchEvent(new Event("spur-documents"));
+        } else if (event.type === "status") {
           if (event.model) model = event.model;
           if (event.route) route = event.route;
           if (event.context) context = event.context;
