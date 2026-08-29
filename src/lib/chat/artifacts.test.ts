@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  ARTIFACT_TTL,
   artifactsFromMessages,
   extractArtifacts,
   isFilename,
@@ -46,4 +47,25 @@ test("latest assistant file of the same name wins", () => {
   ]);
   assert.equal(list.length, 1);
   assert.equal(list[0]?.text, "two");
+});
+
+test("only last ARTIFACT_TTL turns are listed", () => {
+  const msgs = [];
+  for (let t = 1; t <= 6; t++) {
+    msgs.push({ role: "user", content: `t${t}` });
+    msgs.push({
+      role: "assistant",
+      content: "```txt f" + t + ".txt\n" + t + "\n```",
+    });
+  }
+  const list = artifactsFromMessages(msgs);
+  assert.equal(ARTIFACT_TTL, 4);
+  assert.equal(list.length, 4);
+  const names = list.map((a) => a.file).sort();
+  assert.deepEqual(names, ["f3.txt", "f4.txt", "f5.txt", "f6.txt"]);
+  const by = Object.fromEntries(list.map((a) => [a.file, a.remaining]));
+  assert.equal(by["f6.txt"], 4);
+  assert.equal(by["f5.txt"], 3);
+  assert.equal(by["f4.txt"], 2);
+  assert.equal(by["f3.txt"], 1);
 });

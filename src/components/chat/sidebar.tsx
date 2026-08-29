@@ -14,7 +14,12 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { artifactsFromMessages, downloadTextFile } from "@/lib/chat/artifacts";
+import {
+  ARTIFACT_TTL,
+  artifactsFromMessages,
+  downloadTextFile,
+  type LivedArtifact,
+} from "@/lib/chat/artifacts";
 import { isLockedBranch, modeOf, turnCount } from "@/lib/chat/branch-mode";
 import { SLASH_HELP } from "@/lib/chat/commands";
 import { listDocuments, deleteDocument, usesChatPy } from "@/lib/chat/remote";
@@ -448,37 +453,68 @@ function SlashHelp() {
   );
 }
 
+function ttlBadgeStyle(remaining: number): React.CSSProperties {
+  if (remaining <= 1) {
+    return {
+      color: "#f0a8a0",
+      background: "rgba(48, 18, 16, 0.82)",
+      boxShadow:
+        "0 1px 6px rgba(220, 90, 80, 0.35), 0 0 0 1px rgba(240, 168, 160, 0.22)",
+    };
+  }
+  return {
+    color: "#8ee0c8",
+    background: "rgba(14, 40, 34, 0.78)",
+    boxShadow:
+      "0 1px 6px rgba(110, 210, 180, 0.32), 0 0 0 1px rgba(142, 224, 200, 0.2)",
+  };
+}
+
 function GeneratedFiles({
   files,
 }: {
-  files: { file: string; text: string }[];
+  files: LivedArtifact[];
 }) {
   if (files.length === 0) {
     return (
       <p className="text-xs text-muted-foreground">
-        Files the LLM creates will appear here while they appear in history.
+        Files the LLM creates appear here for {ARTIFACT_TTL} turns after they
+        show up in history.
       </p>
     );
   }
   return (
-    <ul className="space-y-1">
-      {files.map((art) => (
-        <li
-          key={art.file}
-          className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
-        >
-          <span className="min-w-0 flex-1 truncate font-mono">{art.file}</span>
-          <button
-            type="button"
-            className="relative size-8 text-muted-foreground after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2 hover:text-foreground"
-            aria-label={`Download ${art.file}`}
-            onClick={() => downloadTextFile(art.file, art.text)}
+    <div className="space-y-2">
+      <ul className="space-y-1">
+        {files.map((art) => (
+          <li
+            key={art.file}
+            className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1.5 text-xs"
           >
-            <Download className="size-3.5" />
-          </button>
-        </li>
-      ))}
-    </ul>
+            <span
+              className="shrink-0 rounded-md px-1.5 py-px font-mono text-[10px] tabular-nums tracking-tight"
+              style={ttlBadgeStyle(art.remaining)}
+              title={`${art.remaining} turn${art.remaining === 1 ? "" : "s"} left`}
+            >
+              {art.remaining}
+            </span>
+            <span className="min-w-0 flex-1 truncate font-mono">{art.file}</span>
+            <button
+              type="button"
+              className="relative size-8 text-muted-foreground after:absolute after:left-1/2 after:top-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2 hover:text-foreground"
+              aria-label={`Download ${art.file}`}
+              onClick={() => downloadTextFile(art.file, art.text)}
+            >
+              <Download className="size-3.5" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="text-[10px] leading-relaxed text-muted-foreground/70">
+        Only files from the last {ARTIFACT_TTL} turns. The number is turns left
+        before it drops off.
+      </p>
+    </div>
   );
 }
 
