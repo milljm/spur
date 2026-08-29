@@ -530,6 +530,7 @@ async function generateViaChatPy(
   let route = "";
   let context = 0;
   let recalling = false;
+  let recalled: string[] = [];
 
   const ac = new AbortController();
   abortRef.current = ac;
@@ -569,11 +570,13 @@ async function generateViaChatPy(
           if (event.route) route = event.route;
           if (event.context) context = event.context;
           recalling = /Recalling Documents?/i.test(event.message || "");
+          if (event.recalled?.length) recalled = event.recalled;
           patch({
             status: event.message,
             streamingModel: recalling ? undefined : event.model || model || undefined,
             streamingRoute: recalling ? undefined : event.route || route || undefined,
             streamingContext: recalling ? undefined : event.context || context || undefined,
+            recalled: recalled.length ? recalled : undefined,
           });
         } else if (event.type === "token") {
           if (first) {
@@ -644,6 +647,7 @@ async function generateViaChatPy(
           tokenSavings: 0,
           ttft,
         },
+        recalled: recalled.length ? recalled : undefined,
         status: undefined,
       },
       originId,
