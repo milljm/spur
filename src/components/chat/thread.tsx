@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowDown,
   Bot,
@@ -13,6 +13,11 @@ import { useChatStore } from "@/lib/chat/store";
 import type { Message } from "@/lib/chat/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Markdown } from "./markdown";
 
 const NEAR_BOTTOM = 96;
@@ -290,20 +295,38 @@ function MessageBubble({
           />
         ) : null}
         {message.metrics && !pending && (
-          <p className="mt-3 font-mono text-[10px] tabular-nums text-muted-foreground">
-            TTFT {message.metrics.ttft.toFixed(2)}s · Gen{" "}
-            {(message.metrics.generationTime - message.metrics.ttft).toFixed(2)}s
-            · {message.metrics.tokenCount} tok ·{" "}
-            {tps(message.metrics).toFixed(1)} T/s · DUP{" "}
-            {fmtK(message.metrics.tokenSavings)} · CTX{" "}
-            {fmtK(message.metrics.promptTokens)} · {message.metrics.model}
+          <p className="mt-3 flex flex-wrap items-center gap-x-1.5 font-mono text-[10px] tabular-nums text-muted-foreground">
+            <FootStat tip="Time to first token">
+              TTFT {message.metrics.ttft.toFixed(2)}s
+            </FootStat>
+            <span aria-hidden>·</span>
+            <FootStat tip="Generation time after first token">
+              Gen{" "}
+              {(message.metrics.generationTime - message.metrics.ttft).toFixed(2)}
+              s
+            </FootStat>
+            <span aria-hidden>·</span>
+            <FootStat tip="Completion tokens">
+              {message.metrics.tokenCount} tok
+            </FootStat>
+            <span aria-hidden>·</span>
+            <FootStat tip="Tokens per second">
+              {tps(message.metrics).toFixed(1)} T/s
+            </FootStat>
+            <span aria-hidden>·</span>
+            <FootStat tip="De-duplicated tokens">
+              DUP {fmtK(message.metrics.tokenSavings)}
+            </FootStat>
+            <span aria-hidden>·</span>
+            <FootStat tip="Packed context size">
+              CTX {fmtK(message.metrics.promptTokens)}
+            </FootStat>
+            <span aria-hidden>·</span>
+            <FootStat tip="Model">{message.metrics.model}</FootStat>
             {message.recalled?.length ? (
-              <span
-                className="ml-1.5 text-muted-foreground/40"
-                title={`Recalled ${message.recalled.join(", ")}`}
-              >
-                📄
-              </span>
+              <FootStat tip={`Recalled ${message.recalled.join(", ")}`}>
+                <span className="ml-0.5 text-muted-foreground/40">📄</span>
+              </FootStat>
             ) : null}
           </p>
         )}
@@ -312,6 +335,23 @@ function MessageBubble({
   );
 }
 
+
+function FootStat({
+  tip,
+  children,
+}: {
+  tip: string;
+  children: ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="cursor-help">{children}</span>
+      </TooltipTrigger>
+      <TooltipContent side="top">{tip}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 function fmtK(n?: number): string {
   if (!n || n <= 0) return "0";
