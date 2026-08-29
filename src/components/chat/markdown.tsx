@@ -30,7 +30,7 @@ function inline(text: string): ReactNode[] {
       parts.push(
         <code
           key={k++}
-          className="rounded-xs bg-secondary px-1 py-0.5 font-mono text-xs"
+          className="rounded-xs bg-code px-1 py-0.5 font-mono text-xs"
         >
           {token.slice(1, -1)}
         </code>,
@@ -181,7 +181,7 @@ function CodeBlock({
   }
 
   return (
-    <div className="my-3 overflow-hidden rounded-md bg-secondary outline outline-1 -outline-offset-1 outline-white/10">
+    <div className="my-3 overflow-hidden rounded-md bg-code outline outline-1 -outline-offset-1 outline-foreground/10">
       <div className="flex items-center justify-between gap-2 border-b border-border px-2 py-0.5">
         <span className="min-w-0 truncate px-1 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
           {label}
