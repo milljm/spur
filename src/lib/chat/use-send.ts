@@ -149,6 +149,7 @@ export function useSend() {
       let reasoning = "";
       let promptTokens = 0;
       let completionTokens = 0;
+      let tokenSavings = 0;
       let model = "grok-4.5";
       let route = "";
       let context = 0;
@@ -219,6 +220,7 @@ export function useSend() {
             } else if (event.type === "usage") {
               promptTokens = event.promptTokens;
               completionTokens = event.completionTokens;
+              if (event.tokenSavings != null) tokenSavings = event.tokenSavings;
               model = event.model;
             } else if (event.type === "error") {
               content = content || event.error;
@@ -242,8 +244,8 @@ export function useSend() {
           model,
           tokenCount,
           generationTime,
-          promptTokens,
-          tokenSavings: 0,
+          promptTokens: promptTokens || context,
+          tokenSavings,
           ttft,
         };
         useChatStore.getState().replaceMessage(
@@ -526,6 +528,7 @@ async function generateViaChatPy(
   let reasoning = "";
   let promptTokens = 0;
   let completionTokens = 0;
+  let tokenSavings = 0;
   let model = "";
   let route = "";
   let context = 0;
@@ -616,6 +619,7 @@ async function generateViaChatPy(
         } else if (event.type === "usage") {
           promptTokens = event.promptTokens;
           completionTokens = event.completionTokens;
+          if (event.tokenSavings != null) tokenSavings = event.tokenSavings;
           model = event.model;
         } else if (event.type === "error") {
           content = content || event.error;
@@ -643,8 +647,8 @@ async function generateViaChatPy(
           model,
           tokenCount,
           generationTime,
-          promptTokens,
-          tokenSavings: 0,
+          promptTokens: promptTokens || context,
+          tokenSavings,
           ttft,
         },
         recalled: recalled.length ? recalled : undefined,

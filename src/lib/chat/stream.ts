@@ -15,7 +15,7 @@ export type ChatEvent =
   | { type: "status"; message: string; model?: string; route?: string; context?: number; recalled?: string[] }
   | { type: "token"; content: string }
   | { type: "reasoning"; content: string }
-  | { type: "usage"; promptTokens: number; completionTokens: number; model: string }
+  | { type: "usage"; promptTokens: number; completionTokens: number; model: string; tokenSavings?: number }
   | { type: "error"; error: string }
   | { type: "documents"; documents: { name: string; chars: number }[] }
   | { type: "done" };
