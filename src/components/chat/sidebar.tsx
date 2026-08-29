@@ -129,7 +129,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-full flex-col bg-card text-card-foreground",
+        "flex h-full min-h-0 w-full flex-col bg-card paper text-card-foreground",
         className,
       )}
     >

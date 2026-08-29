@@ -67,7 +67,7 @@ export function Composer({
   }
 
   return (
-    <div className="border-t border-border bg-background px-4 py-3 md:px-8">
+    <div className="border-t border-border bg-background paper px-4 py-3 md:px-8">
       <div className="mx-auto max-w-3xl">
         <div
           className={cn(
